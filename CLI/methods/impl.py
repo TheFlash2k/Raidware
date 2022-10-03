@@ -35,3 +35,6 @@ def SESSIONS(*args):
 
 def AGENTS(*args):
     pass
+
+def LISTENERS(*args):
+    pass
