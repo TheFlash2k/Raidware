@@ -1,0 +1,28 @@
+# Files
+*.tlog
+*.exe
+*.o
+*.so
+*.lastbuildstate
+*.out
+*.log
+*.recipe
+*.exe
+*.pdb
+*.txt
+*.obj
+*.ipdb
+*.iobj
+*.opendb
+*.db
+*.suo
+*.db-shm
+*.db-wal
+*.ipch
+*.pyc
+
+# Folders
+Codes/Client/Windows/.vs/*
+Codes/Client/Windows/x64/*
+Codes/Server/__pycache__/*
+Codes/Server/imports/__pycache__/*
