@@ -38,6 +38,8 @@ def AGENTS(*args):
     pass
 
 def LISTENERS(*args):
+    # Display the list of all the available listeners.
+    
     pass
 
 def ENABLE(*args):

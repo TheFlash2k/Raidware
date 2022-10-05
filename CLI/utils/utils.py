@@ -1,3 +1,4 @@
+import sys
 from methods.info import *
 from colorama import Fore, Back, init
 
@@ -33,3 +34,6 @@ def parse_input(
         return
 
     INFO[cmds[0].upper()][1](cmds[1:] if len(cmds) > 1 else None)
+
+def log_error(msg, *args):
+    print(f"[{Fore.RED}-{Fore.RESET}] {msg}", file=sys.stderr, *args)

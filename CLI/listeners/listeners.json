@@ -1,0 +1,16 @@
+{
+    "Listeners" : {
+        "Staged" : [
+            "tcp",
+            "udp",
+            "http",
+            "https"
+        ],
+        "Non-Staged" : [
+            "tcp",
+            "udp",
+            "http",
+            "https"
+        ]
+    }
+}
