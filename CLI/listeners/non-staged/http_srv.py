@@ -10,6 +10,7 @@ def decrypt(_ : str):
 hostName = "0.0.0.0"
 serverPort = 8080
 header_name = "yTzbGtyzQEd"
+header_prefix = "X-Raidware"
 
 ''' Don't change this code '''
 connections = [  ]
@@ -18,17 +19,19 @@ def parse_headers(data):
 	data = [i.strip().split(': ') for i in str(data).split('\n') if i != '']
 	return {item[0] : item[1] for item in data}
 
+def create_new_guid():
+	import string
+	import random
+	includes = string.ascii_letters + string.digits
+	_len = 8
+	return ''.join(random.choice(includes) for i in range(_len))
+
 class Connection:
-	def __init__(
-		self,
-		GUID        : str,
-		MachineName : str,
-		UserName    : str
-	):
+	def __init__(self, GUID : str, MachineName : str, UserName : str):
 		print(f"[{GUID}] New Connection - {UserName}@{MachineName}")
-		self.GUID = GUID
+		self.GUID        = GUID
 		self.MachineName = MachineName
-		self.UserName = UserName
+		self.UserName    = UserName
 
 class MyServer(BaseHTTPRequestHandler):  
 
@@ -41,7 +44,14 @@ class MyServer(BaseHTTPRequestHandler):
 
 		_ = decrypt(data)
 		''' Cleaning the data '''
-
+		new = _.split(',')
+		new = [decrypt(i) for i in new]
+		c = Connection(
+			GUID        = create_new_guid(),
+			UserName    = new[0],
+			MachineName = new[1]
+		)
+		connections.append(c)
 
 		return True
 
@@ -54,11 +64,18 @@ class MyServer(BaseHTTPRequestHandler):
 				self.send_response(502)
 				return
 
-		self.send_response(302)
-		self.send_header("Content-type", "text/html")
-		self.send_header("X-Raidware-Allow", "Yes")
-		self.send_header("X-Raidware-Connection", "Established")
-		self.end_headers()
+			self.send_response(302)
+			self.send_header("Content-type", "text/html")
+			self.send_header(f"{header_prefix}-Allow", "Yes")
+			self.send_header(f"{header_prefix}-Connection", "Established")
+			self.end_headers()
+
+		if f'{header_prefix}-Response' in headers.keys():
+			pass
+
+		if f'{header_prefix}-Connection' in headers.keys():
+			pass
+
 		self.wfile.write(bytes(f"Invalid request sent.", "utf-8"))
 
 	def do_GET(self):
@@ -73,6 +90,9 @@ class MyServer(BaseHTTPRequestHandler):
 	def do_POST(self):
 		self.base("POST")
 
+	def log_message(self, format, *args):
+		return
+
 if __name__ == "__main__":
 	webServer = HTTPServer((hostName, serverPort), MyServer)
 	print("Server started http://%s:%s" % (hostName, serverPort))  #Server starts
@@ -82,5 +102,5 @@ if __name__ == "__main__":
 	except KeyboardInterrupt:
 		pass
 
-	webServer.server_close()  #Executes when you hit a keyboard interrupt, closing the server
+	webServer.server_close()
 	print("Server stopped.")
