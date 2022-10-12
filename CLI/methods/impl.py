@@ -21,12 +21,15 @@ def GENERATE(*args):
     if args[0] == None:
         from utils.utils import basic_prompt, prompt
         prompt = (f"{basic_prompt} [{Fore.GREEN}GENERATE{Fore.RESET}] {prompt} ")
-        generate(
-            input(prompt)
-        )
+        while True:
+            _ret = generate( input(prompt) )
+            if not _ret:
+                continue
+            
     else:
         # Checking if valid arguments have been passed.
         
+
         pass
 
     pass
@@ -40,6 +43,8 @@ def AGENTS(*args):
 def LISTENERS(*args):
     # Display the list of all the available listeners.
     
+    
+
     pass
 
 def ENABLE(*args):

@@ -18,6 +18,6 @@ INFO = {
     "SESSIONS" : ("Display the list of active sessions", impl.SESSIONS, True),
     "INTERACT" : ("Interact with a specific session", impl.SESSIONS, True),
     "LISTENERS" : ("Display the list of all avaiable listeners", impl.LISTENERS, True),
+    "SHOW" : ("Display the list of enabled listeners", impl.ENABLED, False),
     "ENABLE" : ("Enables a listener", impl.ENABLE, True),
-    
 }

@@ -24,5 +24,6 @@ def generate(
 
     if data[0] not in agents:
         utils.log_error(f"Invalid agent: {data[0]}")
+        return None
 
-    pass
+    

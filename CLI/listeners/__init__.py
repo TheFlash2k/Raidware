@@ -2,6 +2,8 @@ from abc import abstractmethod
 
 class Listener:
 
+    type : str
+
     @abstractmethod
     def onLoad(self):
         pass
@@ -16,4 +18,7 @@ class Listener:
 
     def onCommand(self):
         pass
-    
+
+
+class CallBackHandler:
+    connections = [ Listener ]
