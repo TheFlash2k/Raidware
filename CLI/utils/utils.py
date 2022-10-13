@@ -34,9 +34,7 @@ def parse_input(
         return
 
     INFO[cmds[0].upper()][1](cmds[1:] if len(cmds) > 1 else None)
-
-msg = "([GREEN]TCP[RESET]):"
-
+    
 colors = {
     "[GREEN]" : Fore.GREEN,
     "[RESET]" : Fore.RESET,
