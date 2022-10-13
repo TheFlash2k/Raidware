@@ -35,5 +35,26 @@ def parse_input(
 
     INFO[cmds[0].upper()][1](cmds[1:] if len(cmds) > 1 else None)
 
+msg = "([GREEN]TCP[RESET]):"
+
+colors = {
+    "[GREEN]" : Fore.GREEN,
+    "[RESET]" : Fore.RESET,
+    "[RED]" : Fore.RED,
+    "[BLUE]" : Fore.BLUE,
+    "[YELLOW]" : Fore.YELLOW,
+    "[WHITE]" : Fore.WHITE,
+    "[MAGENTA]" : Fore.MAGENTA,
+    "[CYAN]" : Fore.CYAN,
+    "[BLACK]" : Fore.BLACK
+}
+
 def log_error(msg, *args):
+    for color in colors.items():
+        msg = msg.replace(color[0], color[1])
     print(f"[{Fore.RED}-{Fore.RESET}] {msg}", file=sys.stderr, *args)
+
+def log_info(msg, *args):
+    for color in colors.items():
+        msg = msg.replace(color[0], color[1])
+    print(f"[{Fore.GREEN}+{Fore.RESET}] {msg}", *args)

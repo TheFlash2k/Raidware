@@ -3,7 +3,11 @@ from tabulate import tabulate
 
 def HELP(*args):
     data = [[item[0], item[1][0]] for item in INFO.items() if item[1][2]]
-    print(tabulate(data, headers=["Command", "Description"]))
+    print(
+        tabulate(
+            data, headers=["Command", "Description"]
+        )
+    )
 
 INFO = {
     "HELP" : ("Display the help menu", HELP, False),
@@ -18,6 +22,6 @@ INFO = {
     "SESSIONS" : ("Display the list of active sessions", impl.SESSIONS, True),
     "INTERACT" : ("Interact with a specific session", impl.SESSIONS, True),
     "LISTENERS" : ("Display the list of all avaiable listeners", impl.LISTENERS, True),
-    "SHOW" : ("Display the list of enabled listeners", impl.ENABLED, False),
+    "SHOW" : ("Display the list of enabled listeners", impl.ENABLED, True),
     "ENABLE" : ("Enables a listener", impl.ENABLE, True),
 }

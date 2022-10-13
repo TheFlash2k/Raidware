@@ -25,6 +25,8 @@ def GENERATE(*args):
             _ret = generate( input(prompt) )
             if not _ret:
                 continue
+            elif _ret:
+                break
             
     else:
         # Checking if valid arguments have been passed.
@@ -42,10 +44,19 @@ def AGENTS(*args):
 
 def LISTENERS(*args):
     # Display the list of all the available listeners.
-    
-    
-
     pass
 
+def ENABLED(*args):
+    from listeners import enabled_Listeners
+    print("Enabled Listeners are: ")
+    for listen in enabled_Listeners:
+        print(listen)
+
 def ENABLE(*args):
+    from listeners.non_staged.tcp import TCP
+
+    tcp = TCP("0.0.0.0", 9001)
+
+    tcp.onLoad()
+
     pass

@@ -15,6 +15,20 @@ def generate(
     if type(input) == list:
         input = ''.join(input)
 
+    if input == '':
+        return None
+    
+    if input.lower() == 'help':
+        
+        return False
+    
+    if input.lower() == 'clear' or input.lower() == 'cls':
+        utils.CLEAR()
+        return False
+
+    if input.lower() == 'exit' or input.lower() == 'quit' or input.lower() == 'back':
+        return True
+
     data = input.lower().split('/')
 
     with open('agents/agents.json', 'r') as f:

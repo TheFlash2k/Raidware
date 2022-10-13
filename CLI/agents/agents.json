@@ -1,11 +1,16 @@
 {
     "AGENTS" : [
         {
-            "Linux" : [],
+            "Linux" : [
+            ],
 
-            "Windows" : [],
+            "Windows" : [
 
-            "MacOS" : []
+            ],
+
+            "MacOS" : [
+
+            ]
         }
     ]
 }

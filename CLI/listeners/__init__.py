@@ -16,9 +16,19 @@ class Listener:
     def onUpload(self):
         pass
 
+    @abstractmethod
     def onCommand(self):
         pass
 
+    @abstractmethod
+    def onSend(self):
+        pass
+
+    @abstractmethod
+    def onRecv(self):
+        pass
 
 class CallBackHandler:
     connections = [ Listener ]
+
+enabled_Listeners = []
