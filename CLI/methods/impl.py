@@ -30,8 +30,6 @@ def GENERATE(*args):
             
     else:
         # Checking if valid arguments have been passed.
-        
-
         pass
 
     pass
