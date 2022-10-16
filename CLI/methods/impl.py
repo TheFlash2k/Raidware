@@ -1,12 +1,14 @@
 from os import system, name
 from colorama import Fore
 from methods.verify import *
+import json
+from tabulate import tabulate
 
 def CLEAR(*args):
     system("cls" if name == "nt" else "clear")
 
 def EXIT(*args):
-    exit(0)
+    utils.exit_valid()
 
 def VERSION(*args):
     try:
@@ -37,24 +39,36 @@ def GENERATE(*args):
 def SESSIONS(*args):
     pass
 
+def json_print(file, field, headers):
+    with open(file) as f:
+        data = json.load(f)[field]
+    print(
+        "\n",
+        tabulate(
+            data,
+            headers=headers
+        ),
+        "\n"
+    )
+
+
 def AGENTS(*args):
-    pass
+    json_print("agents/agents.json", "AGENTS", ["Linux", "Windows", "MacOS"])
 
 def LISTENERS(*args):
-    # Display the list of all the available listeners.
-    pass
+    json_print("listeners/listeners.json", 'Listeners', ['STAGED', 'NON-STAGED'])
 
 def ENABLED(*args):
     from listeners import enabled_Listeners
-    print("Enabled Listeners are: ")
+    print()
+    utils.log_info("Enabled Listeners are: ")
     for listen in enabled_Listeners:
-        print(listen)
+        utils.color_print(listen.__color__())
+    print()
 
 def ENABLE(*args):
     from listeners.non_staged.tcp import TCP
-
     tcp = TCP("0.0.0.0", 9001)
-
     tcp.onLoad()
-
-    pass
+    from time import sleep
+    sleep(1)

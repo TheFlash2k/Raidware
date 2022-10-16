@@ -1,16 +1,22 @@
 {
-    "AGENTS" : [
-        {
-            "Linux" : [
-            ],
+    "AGENTS" : {
+        "Linux" : [
+            "tcp",
+            "udp",
+            "http"
+        ],
 
-            "Windows" : [
+        "Windows" : [
+            "tcp",
+            "udp",
+            "http",
+            "https",
+            "DNS"
+        ],
 
-            ],
-
-            "MacOS" : [
-
-            ]
-        }
-    ]
+        "MacOS" : [
+            "tcp",
+            "http"
+        ]
+    }
 }
