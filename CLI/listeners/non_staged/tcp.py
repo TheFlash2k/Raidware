@@ -26,6 +26,9 @@ class TCP(Listener):
     def __repr__(self):
         return f"TCP(Hostname: {self.ip_addr}, Port: {self.port} | {self.type})"
 
+    def __color__(self):
+        return f"[GREEN]TCP[RESET]([MAGENTA]Hostname:[RESET][BLUE] {self.ip_addr}[RESET], [MAGENTA]Port[RESET]: [CYAN]{self.port}[RESET], [MAGENTA]Type: [YELLOW]{self.type.split(' | ')[0]}[RESET] -- [GREEN]{self.type.split(' | ')[1]}[RESET])"
+
     def __str__(self):
         return self.__repr__()
 

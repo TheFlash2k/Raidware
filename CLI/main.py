@@ -1,3 +1,4 @@
+from re import S
 from colorama import init, Fore, Back
 from utils.utils import *
 
@@ -16,7 +17,9 @@ def main():
         except Exception as E:
             print(f"[{Fore.RED}-{Fore.RESET}] An Error Occurred: {E}")
 
-    print(f"\n[{Fore.CYAN}*{Fore.RESET}] Thanks for using {RAIDWARE}")
+    exit_valid()
+
+
 
 if __name__ == "__main__":
     main()

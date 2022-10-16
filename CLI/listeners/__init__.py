@@ -5,6 +5,10 @@ class Listener:
     type : str
 
     @abstractmethod
+    def __color__(self) -> str:
+        pass
+
+    @abstractmethod
     def onLoad(self):
         pass
 
