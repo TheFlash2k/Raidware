@@ -47,7 +47,8 @@ colors = {
     "[BLACK]" : Fore.BLACK
 }
 
-def colorize(msg):
+''' Colors the string and returns the output '''
+def colorize(msg : str) -> str:
     for color in colors.items():
         msg = msg.replace(color[0].upper(), color[1])
     return msg
@@ -64,3 +65,34 @@ def color_print(msg, *args):
 def exit_valid():
     print(f"\n[{Fore.CYAN}*{Fore.RESET}] Thanks for using {RAIDWARE}")
     exit(0)
+
+''' This method simply creates a new UID'''
+def create_new_UID():
+    import string
+    import random
+    includes = string.ascii_letters + string.digits
+    _len = 25
+    return ''.join(random.choice(includes) for i in range(_len))
+
+''' This method reads the configuration file and simply returns the read data as a dictionary'''
+def fetch_config(protocol : str) -> dict:    
+    import configparser
+    config = configparser.ConfigParser()
+
+    file = f"listeners/default.conf"
+
+    config.read(file)
+    try:
+        data = config[protocol.upper()]
+        ret = {}
+        for item in data:
+            curr = data[item].replace('"','')
+            if data[item][0] == '[' and data[item][-1] == ']':
+                curr = data[item].replace('[','').replace(']','').replace('"','').strip().split(',')
+
+            ret[item] = curr
+
+    except KeyError:
+        return None
+
+    return ret

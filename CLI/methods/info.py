@@ -13,6 +13,7 @@ def HELP(*args):
 
 INFO = {
     "HELP"      : ("Display the help menu", HELP, False),
+    "OPTIONS"   : ("Display the help menu", HELP, False),
     "EXIT"      : ("Exit the program", impl.EXIT, False),
     "QUIT"      : ("Exit the program", impl.EXIT, False),
     "CLEAR"     : ("Clear the screen", impl.CLEAR, False),
@@ -26,5 +27,8 @@ INFO = {
     "LISTENERS" : ("Display the list of all avaiable listeners", impl.LISTENERS, True),
     "SHOW"      : ("Display the list of enabled listeners", impl.ENABLED, False),
     "ENABLED"      : ("Display the list of enabled listeners", impl.ENABLED, True),
+    "RUNNING"      : ("Display the list of enabled listeners", impl.ENABLED, False),
     "ENABLE"    : ("Enables a listener", impl.ENABLE, True),
+    "DISABLE" : ("Disables a running listener", impl.DISABLE, True),
+    "KILL" : ("Disables a running listener", impl.DISABLE, False),
 }

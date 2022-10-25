@@ -1,17 +1,25 @@
 {
     "Listeners" : {
         "Staged" : [
-            "tcp",
-            "udp",
-            "http",
-            "https"
+            {
+                "tcp" : "listeners/staged/tcp.py"
+            },
+            { 
+                "udp" : "listeners/staged/udp.py"
+            },
+            {
+
+                "http" : "listeners/staged/http.py"
+            },
+            {
+                "https" : "listeners/staged/https.py"
+            }
         ],
 
         "Non-Staged" : [
-            "tcp",
-            "udp",
-            "http",
-            "https"
+            { "tcp" : "listeners/non_staged/tcp.py" },
+            { "http" : "listeners/non_staged/http.py" },
+            { "udp" : "UNIMPLEMENTED" }
         ]
     }
 }

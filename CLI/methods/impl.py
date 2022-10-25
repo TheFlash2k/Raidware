@@ -3,13 +3,13 @@ from colorama import Fore
 from methods.verify import *
 import json
 from tabulate import tabulate
+import sys
+
 
 def CLEAR(*args):
     system("cls" if name == "nt" else "clear")
-
 def EXIT(*args):
     utils.exit_valid()
-
 def VERSION(*args):
     try:
         with open('version.conf', 'r') as f:
@@ -42,6 +42,7 @@ def SESSIONS(*args):
 def json_print(file, field, headers):
     with open(file) as f:
         data = json.load(f)[field]
+
     print(
         "\n",
         tabulate(
@@ -53,22 +54,95 @@ def json_print(file, field, headers):
 
 
 def AGENTS(*args):
+    utils.log_info("Available AGENTS are: ")
     json_print("agents/agents.json", "AGENTS", ["Linux", "Windows", "MacOS"])
 
 def LISTENERS(*args):
+    utils.log_info("Available Listeners are: ")
     json_print("listeners/listeners.json", 'Listeners', ['STAGED', 'NON-STAGED'])
 
 def ENABLED(*args):
     from listeners import enabled_Listeners
     print()
     utils.log_info("Enabled Listeners are: ")
-    for listen in enabled_Listeners:
-        utils.color_print(listen.__color__())
+    for uid, listen in enabled_Listeners.items():
+        utils.color_print(utils.colorize(f"[RED]ID[RESET]: {uid} -- {listen.__color__()}"))
     print()
 
 def ENABLE(*args):
-    from listeners.non_staged.tcp import TCP
-    tcp = TCP("0.0.0.0", 9001)
-    tcp.onLoad()
-    from time import sleep
-    sleep(1)
+
+    def help():
+        # ENABLE non-staged/TCP/192.168.0.101/9001\n
+        print("Usage: ENABLE <listener>\nExample(s):\nENABLE non-staged/TCP\nENABLE staged/UDP\nNote: You will have to manually set options and then type \"RUN\" to run the listener or \"RUNBG\" to run the listener in the background.")
+        LISTENERS()
+
+    def err(msg : str = None, only_err : bool = False):
+        if msg != None:
+            utils.log_error(msg)
+        if not only_err:
+            help()
+
+
+    with open('listeners/listeners.json') as f:
+        _listeners = json.load(f)['Listeners']
+
+
+    if args[0] == None:
+        err("No listener specified!")
+        return
+
+    data = args[0][0]
+
+    if data.lower() == "help" or data.lower() == "-h" or data.lower() == "--help":
+        err()
+        return
+
+    if '/' not in data:
+        err("Invalid listener specified.")
+        return
+
+    data = [i.lower() for i in data.split('/')]
+
+    if data[0] != 'staged' and data[0] != 'non-staged':
+        err("Invalid listener specified.")
+        return
+
+    if len(data) < 2:
+        err("Invalid listener specified.")
+        return
+
+    try:
+        lis = _listeners[data[0].title()]
+    except KeyError:
+        err("Invalid listener specified.")
+        return
+
+    _found = False
+    for item in lis:
+        try:
+            _path = item[data[1]]
+            _found = True
+            break
+        except KeyError:
+            continue
+
+    if not _found:
+        err("Invalid listener specified.")
+        return
+
+    if _path == "UNIMPLEMENTED":
+        err("Listener not implemented yet.", only_err = True)
+        return
+
+    _path = _path.replace('.py', '')
+    file_name = _path.split('/')[-1]
+    sys.path.append(_path.split(file_name)[0])
+    listener = __import__(file_name)
+    sys.path = sys.path[:-1]
+    
+    obj = listener.Listener()
+    obj.setopts()
+
+
+def DISABLE(*args):
+    pass

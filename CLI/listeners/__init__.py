@@ -1,6 +1,7 @@
 from abc import abstractmethod
+from socket import socket
 
-class Listener:
+class BaseListener:
 
     type : str
 
@@ -13,26 +14,34 @@ class Listener:
         pass
 
     @abstractmethod
-    def onDownload(self):
+    def onDownload(self, **kwargs):
         pass
 
     @abstractmethod
-    def onUpload(self):
+    def onUpload(self, **kwargs):
         pass
 
     @abstractmethod
-    def onCommand(self):
+    def onCommand(self, **kwargs):
         pass
 
     @abstractmethod
-    def onSend(self):
+    def onSend(self, msg : str, **kwargs):
         pass
 
     @abstractmethod
-    def onRecv(self):
+    def onRecv(self, **kwargs) -> str:
+        pass
+
+    @abstractmethod
+    def setopts(self, **kwargs):
+        pass
+
+    @abstractmethod
+    def __options__(self):
         pass
 
 class CallBackHandler:
-    connections = [ Listener ]
+    connections = [ BaseListener ]
 
-enabled_Listeners = []
+enabled_Listeners = {}
