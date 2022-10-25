@@ -43,20 +43,21 @@ class BaseListener:
 
 
 class Connection:
-    def __init__(self, UID : str, listener = None, _type = None, base = None):
+    def __init__(self, UID : str, listener = None, _type = None, base = None, OS=None):
         self.UID = UID
         self.listener = listener
         self.type = _type
         self.base = base
+        self.OS = OS
 
     def __repr__(self):
         return self.__str__()
 
     def __str__(self):
-        return f"{self.UID} | {self.type}"
+        return f"{self.UID} | {self.type} | {self.OS}"
 
     def __list__(self):
-        return [self.UID, self.type, self.base.__str__()]
+        return [self.UID, self.type, self.OS, self.base.__str__()]
 
     def send(self, msg : str):
         self.listener.onSend(msg, socket=self.base)

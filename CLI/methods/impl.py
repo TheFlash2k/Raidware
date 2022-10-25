@@ -43,7 +43,7 @@ def GENERATE(*args):
 
 def SESSIONS(*args):
 
-    headers = ['UID', 'TYPE', 'DETAILS']
+    headers = ['UID', 'TYPE', 'OS', 'DETAILS']
     data = []
 
     if len(connections) != 0:
@@ -77,7 +77,6 @@ def json_print(file, field, headers):
 
 def INTERACT(*args):
 
-
     def help():
         print("Usage: INTERACT <UID>")
 
@@ -94,6 +93,7 @@ def INTERACT(*args):
     if args[0] == None:
         err("No session UID specified!")
         return
+        
     data = args[0][0]
     if data.lower() == "help" or data.lower() == "-h" or data.lower() == "--help":
         err()

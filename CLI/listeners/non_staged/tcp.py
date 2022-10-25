@@ -58,8 +58,11 @@ class Listener(BaseListener):
             log_info("A connection has been received. Verifying the connection...")
             uid = create_new_UID()
             self.onSend(uid, socket=conn)
-            recv = self.onRecv(socket=conn)
-            return recv == "RAIDWARE_INIT", uid
+            recv = self.onRecv(socket=conn).split('|')
+            try:
+                return recv[0] == "RAIDWARE_INIT", recv[1], uid
+            except:
+                return None
 
         try:
             self.sock.bind((self.ip_addr, self.port))
@@ -87,7 +90,7 @@ class Listener(BaseListener):
 
             log_info(f"([GREEN]TCP[RESET]) Received a connection from {addr[0]}:{addr[1]}")
             print()
-            connections[ret[1]] = Connection(UID=ret[1], listener=self, _type=self.type, base=conn)
+            connections[ret[1]] = Connection(UID=ret[2], listener=self, _type=self.type, base=conn, OS=ret[1])
 
     def __help__(self):
         self.__options__()
