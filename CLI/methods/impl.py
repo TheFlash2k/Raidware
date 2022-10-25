@@ -1,12 +1,17 @@
 from os import system, name
+from tkinter.tix import Tree
 from colorama import Fore
 from methods.verify import *
 import json
 from tabulate import tabulate
 import sys
 
+from listeners import connections
+import methods.interact
+
 
 def CLEAR(*args):
+    from os import system, name
     system("cls" if name == "nt" else "clear")
 def EXIT(*args):
     utils.exit_valid()
@@ -37,7 +42,25 @@ def GENERATE(*args):
     pass
 
 def SESSIONS(*args):
-    pass
+
+    headers = ['UID', 'TYPE', 'DETAILS']
+    data = []
+
+    if len(connections) != 0:
+        for item in connections.values():
+            data.append(item.__list__())
+
+        print(
+            "\n",
+            tabulate(
+                data,
+                headers=headers,
+            ),
+            "\n"
+        )
+    else:
+        from colorama import Fore
+        print(f"[{Fore.RED}-{Fore.RESET}] No sessions have been received yet.")
 
 def json_print(file, field, headers):
     with open(file) as f:
@@ -47,11 +70,54 @@ def json_print(file, field, headers):
         "\n",
         tabulate(
             data,
-            headers=headers
+            headers=headers,
         ),
         "\n"
     )
 
+def INTERACT(*args):
+
+
+    def help():
+        print("Usage: INTERACT <UID>")
+
+    def err(msg : str = None, only_err : bool = False):
+        if msg != None:
+            utils.log_error(msg)
+        if not only_err:
+            help()
+
+    if len(connections) <= 0:
+        err("No sessions have been received yet.", only_err = True)
+        return
+
+    if args[0] == None:
+        err("No session UID specified!")
+        return
+    data = args[0][0]
+    if data.lower() == "help" or data.lower() == "-h" or data.lower() == "--help":
+        err()
+        return
+    
+    if data not in connections.keys():
+        ''' Checking if an index has been provided '''
+        try:
+            data = int(data)
+        except ValueError:
+            err("Invalid session UID specified. Please type \"SESSIONS\" to check the UID of all the available sessions.", only_err=True)
+            return
+        
+        ''' Checking if the index is valid '''
+        if data > len(connections) or data < 0:
+            err("Invalid session UID specified. Please type \"SESSIONS\" to check the UID of all the available sessions.", only_err=True)
+            return
+
+        ''' Getting the UID of the session '''
+        data = list(connections.keys())[data]
+
+    methods.interact._interact(connections[data])
+
+    
 
 def AGENTS(*args):
     utils.log_info("Available AGENTS are: ")
@@ -142,7 +208,6 @@ def ENABLE(*args):
     
     obj = listener.Listener()
     obj.setopts()
-
 
 def DISABLE(*args):
     pass

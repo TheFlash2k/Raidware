@@ -1,8 +1,8 @@
 ''' Raidware imports '''
-from time import sleep
-from listeners import BaseListener, CallBackHandler, enabled_Listeners
+from listeners import *
 from utils.utils import *
 
+from time import sleep
 from socket import *
 from threading import Thread
 
@@ -31,6 +31,8 @@ class Listener(BaseListener):
         self.sock.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)
         self.thread = None
 
+        self.rcvd = {}
+
     def __update__(self):
         self.ip_addr, self.port, self.BEGIN_DEL, self.DELIMITER = self.opts.values()
         try:
@@ -54,9 +56,10 @@ class Listener(BaseListener):
         def __verify__(conn : socket):
             print()
             log_info("A connection has been received. Verifying the connection...")
-            self.onSend(create_new_UID(), socket=conn)
+            uid = create_new_UID()
+            self.onSend(uid, socket=conn)
             recv = self.onRecv(socket=conn)
-            return recv == "RAIDWARE_INIT"
+            return recv == "RAIDWARE_INIT", uid
 
         try:
             self.sock.bind((self.ip_addr, self.port))
@@ -77,13 +80,14 @@ class Listener(BaseListener):
             conn, addr = self.sock.accept()
 
             ''' Verifying the received connection... '''
-            if not __verify__(conn):
+            ret = __verify__(conn)
+            if not ret[0]:
                 log_error("Connection was received but we were unable to validate if it was our own.")
                 continue
 
             log_info(f"([GREEN]TCP[RESET]) Received a connection from {addr[0]}:{addr[1]}")
             print()
-            CallBackHandler.connections.append(conn)
+            connections[ret[1]] = Connection(UID=ret[1], listener=self, _type=self.type, base=conn)
 
     def __help__(self):
         self.__options__()
