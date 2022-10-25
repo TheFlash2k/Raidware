@@ -21,8 +21,13 @@
 *.ipch
 *.pyc
 
-# Folders
-Codes/Client/Windows/.vs/*
-Codes/Client/Windows/x64/*
-Codes/Server/__pycache__/*
-Codes/Server/imports/__pycache__/*
+Test/
+Debug/
+Release/
+
+# Pycache
+__pycache__/
+CLI/listeners/__pycache__/
+CLI/listeners/non_staged/__pycache__/
+CLI/methods/__pycache__/
+CLI/utils/__pycache__/
