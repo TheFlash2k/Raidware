@@ -1,7 +1,7 @@
 import sys
-from methods.info import *
+from CLI.methods.info import *
 
-from utils.colors import *
+from CLI.utils.colors import *
 
 def CLEAR(*args):
     from os import system, name

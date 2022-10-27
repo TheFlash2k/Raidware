@@ -1,13 +1,12 @@
 from os import system, name
-from tkinter.tix import Tree
 from colorama import Fore
-from methods.verify import *
 import json
 from tabulate import tabulate
 import sys
 
-from listeners import connections
-import methods.interact
+from CLI.listeners import connections
+from CLI.methods.verify import *
+from CLI.methods.interact import _interact
 
 
 def CLEAR(*args):
@@ -15,6 +14,7 @@ def CLEAR(*args):
     system("cls" if name == "nt" else "clear")
 def EXIT(*args):
     utils.exit_valid()
+    
 def VERSION(*args):
     try:
         with open('version.conf', 'r') as f:
@@ -115,17 +115,19 @@ def INTERACT(*args):
         ''' Getting the UID of the session '''
         data = list(connections.keys())[data]
 
-    methods.interact._interact(connections[data])
-
-    
+    _interact(connections[data])
 
 def AGENTS(*args):
+    file_name = "agents/agents.json"
     utils.log_info("Available AGENTS are: ")
-    json_print("agents/agents.json", "AGENTS", ["Linux", "Windows", "MacOS"])
+    json_print(file_name, "AGENTS", ["Linux", "Windows", "MacOS"])
+    return json.load(open(file_name))['Listeners']
 
 def LISTENERS(*args):
+    file_name = "listeners/listeners.json"
     utils.log_info("Available Listeners are: ")
-    json_print("listeners/listeners.json", 'Listeners', ['STAGED', 'NON-STAGED'])
+    json_print(file_name, 'Listeners', ['STAGED', 'NON-STAGED'])
+    return json.load(open(file_name))['Listeners']
 
 def ENABLED(*args):
     from listeners import enabled_Listeners
@@ -134,6 +136,7 @@ def ENABLED(*args):
     for uid, listen in enabled_Listeners.items():
         utils.color_print(utils.colorize(f"[RED]ID[RESET]: {uid} -- {listen.__color__()}"))
     print()
+    return enabled_Listeners
 
 def ENABLE(*args):
 

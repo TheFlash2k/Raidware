@@ -1,5 +1,5 @@
 import json
-from utils import utils
+from CLI.utils import utils
 
 def generate(
     input: str

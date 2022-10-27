@@ -1,4 +1,4 @@
-from utils.colors import log_error
+from CLI.utils.colors import log_error
 
 class Handle:
     conn = None

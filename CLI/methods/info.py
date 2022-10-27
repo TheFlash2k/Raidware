@@ -1,4 +1,4 @@
-import methods.impl as impl
+import CLI.methods.impl as impl
 from tabulate import tabulate
 
 def HELP(*args):
@@ -31,5 +31,5 @@ INFO = {
     "RUNNING"      : ("Display the list of enabled listeners", impl.ENABLED, False),
     "ENABLE"    : ("Enables a listener", impl.ENABLE, True),
     "DISABLE" : ("Disables a running listener", impl.DISABLE, True),
-    "KILL" : ("Disables a running listener", impl.DISABLE, False),
+    "KILL" : ("Disables a running listener", impl.DISABLE, False)
 }
