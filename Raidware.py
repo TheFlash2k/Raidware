@@ -1,13 +1,14 @@
 import argparse
 
 parser = argparse.ArgumentParser(prog="Raidware", description='Raidware - A C2 Framework.')
-subparsers = parser.add_subparsers(dest='subparser_name')
+subparsers = parser.add_subparsers(required=True, dest='mode')
 
 server_parser = subparsers.add_parser('server', help='Start the Raidware Teamserver.')
 server_parser.add_argument('-H', '--host', help='Specify the host to bind the Teamserver to.', default='0.0.0.0', type=str)
 server_parser.add_argument('-p', '--port', help='Specify the port to bind the Teamserver to.', default=5000, type=int)
 server_parser.add_argument('-d', '--debug', help='Enable debug mode.', action='store_true')
 server_parser.add_argument('-T', '--team-password', help='Set a custom Team Password that your team will authenticate with', default=None, type=str)
+server_parser.add_argument('-B', '--background', help="Run the Teamserver in the background.", action='store_true')
 
 cli_parser = subparsers.add_parser('cli', help='Start the Raidware CLI.')
 cli_parser.add_argument('-H', '--host', help='Specify the host of the Teamserver.', default='127.0.0.1', type=str)
@@ -18,7 +19,7 @@ cli_parser.add_argument('-T', '--team-password', help="Specify the team's passwo
 
 args = parser.parse_args()
 
-if args.subparser_name == 'cli':
+if args.mode == 'cli':
     ''' All CLI Parsing '''
     host = args.host
     port = args.port
@@ -26,20 +27,24 @@ if args.subparser_name == 'cli':
     password = args.password
     team_password = args.team_password
 
-    print("Unimplemented. Will be working on it soon...")
-    print(f"\nHost: {host}")
-    print(f"Port: {port}")
-    print(f"Username: {username}")
-    print(f"Password: {password}")
-    print(f"Team Password: {team_password}")
-    print("\nRegards,\nTeam Raidware!")
+    from CLI.cli import init
+    init(
+        host = host,
+        port = port,
+        username = username,
+        password = password,
+        team_password = team_password
+    )
 
-elif args.subparser_name == 'server':
+elif args.mode == 'server':
     ''' All Server Parsing '''
     host = args.host
     port = args.port
     debug = args.debug
     team_password = args.team_password
+
+    if args.background:
+        print("Background mode isn't currently available. Will update it soon.")
 
     from Teamserver.app import init
     init(host = host, port = port, debug = debug, team_pass=team_password)

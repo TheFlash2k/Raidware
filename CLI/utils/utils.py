@@ -55,7 +55,7 @@ def fetch_config(protocol : str) -> dict:
     import configparser
     config = configparser.ConfigParser()
 
-    file = f"listeners/default.conf"
+    file = f"CLI/listeners/default.conf"
 
     config.read(file)
     try:

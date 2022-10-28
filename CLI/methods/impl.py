@@ -118,13 +118,13 @@ def INTERACT(*args):
     _interact(connections[data])
 
 def AGENTS(*args):
-    file_name = "agents/agents.json"
+    file_name = "CLI/agents/agents.json"
     utils.log_info("Available AGENTS are: ")
     json_print(file_name, "AGENTS", ["Linux", "Windows", "MacOS"])
     return json.load(open(file_name))['Listeners']
 
 def LISTENERS(*args):
-    file_name = "listeners/listeners.json"
+    file_name = "CLI/listeners/listeners.json"
     utils.log_info("Available Listeners are: ")
     json_print(file_name, 'Listeners', ['STAGED', 'NON-STAGED'])
     return json.load(open(file_name))['Listeners']
@@ -152,7 +152,7 @@ def ENABLE(*args):
             help()
 
 
-    with open('listeners/listeners.json') as f:
+    with open('CLI/listeners/listeners.json') as f:
         _listeners = json.load(f)['Listeners']
 
 

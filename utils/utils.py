@@ -55,3 +55,10 @@ def create_agents_config():
         }
     }
     write_json('Teamserver/config/agents.json', agents)
+
+
+''' Variable Constants '''
+from colorama  import Fore
+RAIDWARE = f"{Fore.RED}Raid{Fore.RESET}{Fore.WHITE}ware{Fore.RESET}"
+basic_prompt = f"({RAIDWARE})"
+prompt = ">>"

@@ -1,10 +1,8 @@
 ''' This file will contain a method that will be called when the interact command will be used. This will act a sort of another CLI as well. '''
-from multiprocessing.spawn import import_main_path
-from turtle import color
 from tabulate import tabulate
-from methods.interact.interact import *
-from listeners import Connection
-from utils.colors import *
+from CLI.methods.interact.interact import *
+from CLI.listeners import Connection
+from CLI.utils.colors import *
 
 def CLEAR(*args):
     from os import system, name

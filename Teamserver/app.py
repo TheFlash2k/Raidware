@@ -180,7 +180,29 @@ def agents():
     return Raidware.get_agents()
 
 
+@app.route(f'/{prefix}/enable')
+def enable():
+    resp = validate()
+    if resp:
+        return resp
 
+    ''' This method will enable a listener '''
+
+
+
+@app.route(f'/{prefix}/disable/<LID>')
+def disable(lid : str):
+    resp = validate()
+    if resp:
+        return resp
+
+    ''' This method will disable a listener'''
+
+@app.route(f'/{prefix}/check')
+def check():
+    ''' This will check if any new connections have been received on the listeners. '''
+    pass
+    
 
 def init(host : str, port : int, debug : bool, team_pass : str = None):
 
@@ -190,7 +212,7 @@ def init(host : str, port : int, debug : bool, team_pass : str = None):
     Raidware.init()
     log("Initializing the Teamserver API", LogLevel.INFO)
     if not team_pass:
-        print(f"{Fore.RED}[!]{Fore.RESET} Note: This is the Teamserver Password that you will use when authenticating...")
+        print(f"[{Fore.RED}!{Fore.RESET}] Note: This is the Teamserver Password that you will use when authenticating...")
     else:
         Raidware.team_password = team_pass
 
