@@ -1,5 +1,5 @@
 from tkinter import E
-from flask import Flask, request, jsonify, Response
+from flask import Flask, request, jsonify, Response, redirect, url_for
 import Teamserver.Raidware as Raidware
 from Teamserver.db import actions as db_actions
 from utils.crypto import SHA512
@@ -9,11 +9,45 @@ import sys
 sys.dont_write_bytecode = True
 
 app = Flask(__name__)
+HTTP_METHODS = ['GET', 'HEAD', 'POST', 'PUT', 'DELETE', 'CONNECT', 'OPTIONS', 'TRACE', 'PATCH']
 
 prefix = "v1"
 
+@app.route("/", methods=HTTP_METHODS)
+def index():
+    ''' Redirect to {prefix}/base'''
+    return redirect(url_for('base'))
+
+@app.route(f'/{prefix}/base', methods=HTTP_METHODS)
+def base():
+
+    print(request.data)
+
+    with open('version.conf') as f:
+        version = f.read()
+    
+    return {
+        "server" : "Raidware Teamserver API",
+        "version" : version
+    }
+
 @app.route(f'/{prefix}/auth', methods=['POST'])
 def auth():
+
+    ''' Checking if a valid token already exists: ''' 
+    token = request.cookies.get('token')
+    if token:
+        if Raidware.check_token(token):
+            return {
+                'status': 'warning',
+                'message': 'Already authenticated'
+            }, 200
+        else:
+            return {
+                'status': 'error',
+                'message': 'Invalid token. Please delete/remove token to re-authenticate'
+            }, 401
+
     try:
         content_type = request.headers.get('Content-Type')
         if (content_type == 'application/json'):
@@ -78,6 +112,11 @@ def auth():
     res = jsonify(status='success', message='Successfully authenticated')
     res.set_cookie('token', token)
     return res  
+
+@app.route(f'/{prefix}/login', methods=['POST'])
+def login():
+    ''' Redirect to /auth '''
+    return auth()
 
 @app.route(f'/{prefix}/register', methods=['POST'])
 def register():
@@ -180,6 +219,15 @@ def agents():
     return Raidware.get_agents()
 
 
+@app.route(f'/{prefix}/prepare')
+def prepare_listener():
+    resp = validate()
+    if resp:
+        return resp
+    
+    ''' This method will prepare a listener '''
+
+
 @app.route(f'/{prefix}/enable')
 def enable():
     resp = validate()
@@ -187,7 +235,7 @@ def enable():
         return resp
 
     ''' This method will enable a listener '''
-
+    _ = ""
 
 
 @app.route(f'/{prefix}/disable/<LID>')
@@ -197,6 +245,7 @@ def disable(lid : str):
         return resp
 
     ''' This method will disable a listener'''
+    _ = ""
 
 @app.route(f'/{prefix}/check')
 def check():
@@ -220,3 +269,29 @@ def init(host : str, port : int, debug : bool, team_pass : str = None):
     print(f"[{Fore.GREEN}*{Fore.RESET}] Note: This password won't be stored in the log to prevent it from being leaked.\n{'=' * cols}")
 
     app.run(host=host, port=port, debug=debug)
+
+
+@app.route(f'/{prefix}/logout', methods=['POST'])
+def logout():
+    ''' This will logout the user '''
+    resp = validate()
+
+    ''' Decrypting the received token '''
+    token = request.cookies.get('token')
+    token = Raidware.decrypt_token(token)
+    
+    if token == None:
+        return {
+            'status': 'error',
+            'message': 'No user logged in.'
+        }, 401
+
+    name = token.split('|')[0]
+    log(f"Logged out {name}", LogLevel.INFO)
+
+    if resp:
+        return resp
+
+    res = jsonify(status='success', message=F'Successfully logged out {name}')
+    res.set_cookie('token', '')
+    return res

@@ -20,31 +20,19 @@ cli_parser.add_argument('-T', '--team-password', help="Specify the team's passwo
 args = parser.parse_args()
 
 if args.mode == 'cli':
-    ''' All CLI Parsing '''
-    host = args.host
-    port = args.port
-    username = args.username
-    password = args.password
-    team_password = args.team_password
-
+    
     from CLI.cli import init
     init(
-        host = host,
-        port = port,
-        username = username,
-        password = password,
-        team_password = team_password
+        host = args.host,
+        port = args.port,
+        username = args.username,
+        password = args.password,
+        team_password = args.team_password
     )
 
 elif args.mode == 'server':
-    ''' All Server Parsing '''
-    host = args.host
-    port = args.port
-    debug = args.debug
-    team_password = args.team_password
-
     if args.background:
         print("Background mode isn't currently available. Will update it soon.")
 
     from Teamserver.app import init
-    init(host = host, port = port, debug = debug, team_pass=team_password)
+    init(host = args.host, port = args.port, debug = args.debug, team_pass=args.team_password)

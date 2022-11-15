@@ -40,6 +40,9 @@ def quick_crypt(
 def quick_decrypt(
     ct : str
 ):
+    if ct == None or ct == "":
+        return None
+        
     secret_key = json_fetch("Teamserver/config/config.json", "Raidware_Configuration")["SECRET_KEY"]
     return _AES(key=secret_key).decrypt(ct)
 

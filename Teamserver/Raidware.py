@@ -14,6 +14,12 @@ def generate_token(username : str):
     
     return quick_crypt(f"{username}|{get_team_password()}|{datetime.today().strftime('%d-%m-%y')}")
 
+def decrypt_token(token : str):
+    ''' url decode the token '''
+    from urllib.parse import unquote
+    token = unquote(token)
+    return quick_decrypt(token)
+
 def check_token(token : str):
 
     ''' url decode the token '''
@@ -24,6 +30,9 @@ def check_token(token : str):
     
     try:
         decrypted = quick_decrypt(token)
+        if decrypted == None:
+            return False
+        
         uname, team_password, date = decrypted.split("|")
 
         if not get_user(uname):

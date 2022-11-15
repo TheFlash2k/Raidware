@@ -64,9 +64,9 @@ def init(
     resp = requests.post(
         url = f"http://{host}:{port}/{endpoint}",
         json = {
-            "username": username,
-            "password": password,
-            "team_password": team_password
+            "username"      : username,
+            "password"      : password,
+            "team_password" : team_password
         }
     )
     try:
