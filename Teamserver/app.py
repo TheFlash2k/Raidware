@@ -4,14 +4,17 @@ import Teamserver.Raidware as Raidware
 from Teamserver.db import actions as db_actions
 from utils.crypto import SHA512
 from utils.logger import *
+from utils.utils import prefix
 
 import sys
 sys.dont_write_bytecode = True
 
+import logging
+__log__ = logging.getLogger('werkzeug')
+__log__.setLevel(logging.ERROR)
+
 app = Flask(__name__)
 HTTP_METHODS = ['GET', 'HEAD', 'POST', 'PUT', 'DELETE', 'CONNECT', 'OPTIONS', 'TRACE', 'PATCH']
-
-prefix = "v1"
 
 @app.route("/", methods=HTTP_METHODS)
 def index():
@@ -261,7 +264,7 @@ def prepare_listener():
             }, 500
 
         return listener
-        
+
     except Exception as E:
         return {
             "ERROR" : "Invalid request",

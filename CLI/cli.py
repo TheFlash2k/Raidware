@@ -3,6 +3,7 @@ from colorama import init, Fore, Back
 from .utils.utils import *
 import CLI.listeners as listeners
 from utils.logger import LogLevel, log_error, log
+from utils.utils import prefix
 
 ''' Disabling .pyc files from generating '''
 import sys
@@ -55,12 +56,12 @@ def init(
         host = host,
         port = port
     ):
-        print(f"[{Fore.RED}!{Fore.RESET}] Teamserver is not running. Please start the Teamserver before starting the CLI.")
+        print(f"[{Fore.RED}!{Fore.RESET}] Teamserver is not running OR is unavailable. Please check the provided host and port for the Teamserver.")
         exit(1)
 
     ## Authenticate with the Teamserver:
     import requests
-    endpoint = 'v1/auth'
+    endpoint = f'{prefix}/auth'
     resp = requests.post(
         url = f"http://{host}:{port}/{endpoint}",
         json = {

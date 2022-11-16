@@ -11,8 +11,8 @@ server_parser.add_argument('-T', '--team-password', help='Set a custom Team Pass
 server_parser.add_argument('-B', '--background', help="Run the Teamserver in the background.", action='store_true')
 
 cli_parser = subparsers.add_parser('cli', help='Start the Raidware CLI.')
-cli_parser.add_argument('-H', '--host', help='Specify the host of the Teamserver.', default='127.0.0.1', type=str)
-cli_parser.add_argument('-p', '--port', help='Specify the port of the Teamserver.', default=5000, type=int)
+cli_parser.add_argument('-H', '--host', help='Specify the host of the Teamserver.', type=str, required=True)
+cli_parser.add_argument('-p', '--port', help='Specify the port of the Teamserver.', type=int, required=True)
 cli_parser.add_argument('-U', '--username', help='Specify the username you specified when registering.', required=True, type=str)
 cli_parser.add_argument('-P', '--password', help='Specify the password you specified when registering.', required=True, type=str)
 cli_parser.add_argument('-T', '--team-password', help="Specify the team's password that was given to you when you ran Raidware.", required=True, type=str)

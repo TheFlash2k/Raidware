@@ -234,6 +234,7 @@ namespace Raidware.Agent.TCP
 
         public static void Main(string[] args)
         {
+            const int SLEEP_TIME = 5000;
         _RE:
             try
             {
@@ -248,8 +249,8 @@ namespace Raidware.Agent.TCP
             }
             catch
             {
-                Console.WriteLine("An Error occurred. Restarting after 5 seconds...");
-                System.Threading.Thread.Sleep(5000);
+                Console.WriteLine($"An Error occurred. Restarting after {SLEEP_TIME/1000} seconds...");
+                System.Threading.Thread.Sleep(SLEEP_TIME);
                 goto _RE;
             }
 
