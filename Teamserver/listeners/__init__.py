@@ -41,7 +41,7 @@ class BaseListener:
         pass
 
     @abstractmethod
-    def onRecv(self, **kwargs) -> str:
+    def onRecv(self, **kwargs):
         pass
 
     @abstractmethod

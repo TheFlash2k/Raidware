@@ -106,7 +106,11 @@ def get_agents():
     return json_fetch("Teamserver/config/agents.json", "Agents")
 
 def check_listener(listener : dict):
-    listener_name = listener['name']
+    try:
+        listener_name = listener['name']
+    except:
+        return False
+
     listeners = get_listeners()
     for item in listeners.keys():
         if item.lower() == listener_name.lower():
@@ -117,22 +121,115 @@ def check_listener(listener : dict):
 def prepare_listener(listener : dict):
 
     if not check_listener(listener):
-        return None
+        return {
+            "status" : "error",
+            "message" : "Listener doesn't exist"
+        }
 
-    listener_name = listener['name'].lower()
+    try:
+        listener_name = listener['name'].lower()
+    except:
+        return {
+            'status' : 'error',
+            'message' : 'Listener name not specified'
+        }
+
+    if type(listener_name) != str:
+        return {
+            'status' : 'error',
+            'message' : 'Listener name must be a string'
+        }
+
+    if not listener_name:
+        return {
+            'status' : 'error',
+            'message' : "Field 'name' not specified"
+        }
+
+    try:
+        listener_type = listener['type']
+    except:
+        return {
+            'status' : 'error',
+            'message' : "Field 'type' not specified"
+        }
+
+    if type(listener_type) != str:
+        return {
+            'status' : 'error',
+            'message' : "Field 'type' must be a string"
+        }
+
+    if not listener_type:
+        return {
+            'status' : 'error',
+            'message' : "Field 'type' cannot be empty"
+        }
+
+    listener_type = listener_type.lower().replace('-', '_')
+
+    if listener_type != "staged" and listener_type != "non_staged":
+        return {
+            'status' : 'error',
+            'message' : "Field 'type' must be either 'staged' or 'non_staged'"
+        }
+
+    ''' Checking if config field and type field is specified'''
+    try:
+        listener_config = listener['config']
+    except:
+        return {
+            'status' : 'error',
+            'message' : "Field 'config' not specified"
+        }
+
+    if type(listener_config) != dict:
+        return {
+            'status' : 'error',
+            'message' : "Field 'config' must be a dictionary"
+        }
+
+    if not listener_config:
+        return {
+            'status' : 'error',
+            'message' : "Field 'config' cannot be empty"
+        }
+
+
     data = get_listeners()[listener_name]
 
     base_keys = list(data['Common']['config'].keys())
     passed_keys = list(listener['config'].keys())
     
-
     ''' Verifying if the fields match '''
-    for item in passed_keys:
+    for item in list(passed_keys):
+
         if item not in base_keys:
             return {
                 'status' : 'error',
-                'message' : f'Invalid key "{item}" provided'
+                'message' : f'Invalid key "{item}" provided in the CONFIG field.'
             }
 
     ''' Preparing the listener '''
+    log("Preparing the Listener", LogLevel.INFO)
+
+    ''' Loading the listener '''
+    module = f"Teamserver.listeners.{listener_type}.{listener_name}"
+    log(f"Loading the Listener: {module}", LogLevel.DEBUG)
+    from importlib import import_module
+    listener_module = import_module(module)
+    log("Loaded the Listener", LogLevel.DEBUG)
+    obj = listener_module.Listener()
+
+    log("Updating the listener with the configuration variables provided")
+    ''' Updating the listener with the configuration variables provided '''
+    log(f"Configuration Variables: {listener['config']}")
+    obj.setopts(**listener['config'])
+    obj.onLoad()
+
+    return {
+        'status' : 'success',
+        'message' : 'Listener prepared successfully',
+        'listener' : obj.__dict__()
+    }
     

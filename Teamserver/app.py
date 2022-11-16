@@ -242,7 +242,7 @@ def prepare_listener():
         if not data.get('listener'):
             return {
                 'status': 'error',
-                'message': 'listener field is missing'
+                'message': '"listener" field is missing'
             }, 500
 
         ''' Checking if the listener exists '''
@@ -267,7 +267,7 @@ def prepare_listener():
     except Exception as E:
         return {
             "ERROR" : "Invalid request",
-            "Details" : E
+            "Details" : f'Error: {E}'
         }, 500
 
 
@@ -349,6 +349,6 @@ def logout():
     if resp:
         return resp
 
-    res = jsonify(status='success', message=F'Successfully logged out {name}')
+    res = jsonify(status='success', message=f'Successfully logged out {name}')
     res.set_cookie('token', '')
     return res

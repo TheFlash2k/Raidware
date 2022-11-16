@@ -1,11 +1,11 @@
 import json
 
-def json_fetch(file_name : str, field : str) -> json:
+def json_fetch(file_name : str, field : str):
     with open(file_name, 'r') as f:
         data = json.load(f)
         return data[field]
 
-def write_json(file_name : str, content : dict) -> None:
+def write_json(file_name : str, content : dict):
     with open(file_name, 'w') as f:
         json.dump(content, f, indent=4)
 
@@ -54,6 +54,12 @@ def create_agents_config():
     }
     write_json('Teamserver/config/agents.json', agents)
 
+
+def get_default_config_vars(name : str):
+    with open('Teamserver/config/listeners.json', 'r') as f:
+        data  = json.load(f)
+
+    return data['Listeners'][name.lower()]['Common']['config']
 
 ''' Variable Constants '''
 from colorama  import Fore
