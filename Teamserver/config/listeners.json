@@ -1,31 +1,47 @@
 {
     "Listeners" : {
-        "Staged" : [
-            {
-                "tcp" : "listeners/staged/tcp.py"
+        "tcp" : {
+            "Common" : {
+                "description" : "TCP Listener",
+                "config" : {
+                    "host" : "0.0.0.0",
+                    "port" : 9001,
+                    "begin-delimiter" : "|RAIDWARE-SoM|",
+                    "end-delimiter" :  "|RAIDWARE-EoM|"
+                }
             },
-            { 
-                "udp" : "listeners/staged/udp.py"
+ 
+            "Non-Staged" : {
+                "path" : "listeners/staged/tcp.py"
             },
-            {
 
-                "http" : "listeners/staged/http.py"
-            },
-            {
-                "https" : "listeners/staged/https.py"
+            "Staged" : {
+                "path" : "listeners/staged/tcp.py",
+                "payload_size" : null,
+                "payload_type" : "staged",
+                "arch" : ["x86", "x64"]
             }
-        ],
+        },
 
-        "Non-Staged" : [
-            {
-                "tcp" : "listeners/non_staged/tcp.py"
+        "udp" : {
+            "Common" : {
+                "description" : "UDP Listener",
+                    "config" : {
+                        "host" : "0.0.0.0",
+                        "port" : 9001,
+                        "ssl" : false,
+                        "begin-delimiter" : "|RAIDWARE-SoM|",
+                        "end-delimiter" :  "|RAIDWARE-EoM|"
+                    }
             },
-            {
-                "http" : "listeners/non_staged/http.py"
+
+            "Non-Staged" : {
+                "path" : "listeners/staged/udp.py"
             },
-            {
-                "udp" : "UNIMPLEMENTED"
+
+            "Staged" : {
+                "status" : "UNIMPLEMENTED"
             }
-        ]
+        }
     }
 }

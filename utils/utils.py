@@ -38,11 +38,9 @@ def create_config():
     
 def create_listeners_config():
     listeners = {
-        "Listeners" : {
-            "Staged" : [{"tcp" : "listeners/staged/tcp.py"}, {"udp" : "listeners/staged/udp.py"}, {"http" : "listeners/staged/http.py"}, {"https" : "listeners/staged/https.py"}],
-            "Non-Staged" : [{"tcp" : "listeners/non_staged/tcp.py"}, {"http" : "listeners/non_staged/http.py"}, {"udp" : "UNIMPLEMENTED"}]
-        }
+        "Listeners" : { "tcp" : {  "Common" : {   "description" : "TCP Listener",   "config" : {    "host" : "0.0.0.0",    "port" : 9001,    "ssl" : False,    "begin-delimiter" : "|RAIDWARE-SoM|",    "end-delimiter" :  "|RAIDWARE-EoM|"   }  }, "Non-Staged" : {   "path" : "listeners/staged/tcp.py"  },  "Staged" : {   "path" : "listeners/staged/tcp.py",   "payload_size" : None,   "payload_type" : "staged",   "arch" : "x64"  } }, "udp" : {  "Common" : {   "description" : "UDP Listener",    "config" : {     "host" : "0.0.0.0",     "port" : 9001,     "ssl" : False,     "begin-delimiter" : "|RAIDWARE-SoM|",     "end-delimiter" :  "|RAIDWARE-EoM|"    }  },  "Non-Staged" : {   "path" : "listeners/staged/udp.py"  },  "Staged" : {   "status" : "UNIMPLEMENTED"  } }}
     }
+    
     write_json('Teamserver/config/listeners.json', listeners)
 
 

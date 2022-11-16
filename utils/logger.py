@@ -65,9 +65,10 @@ def log(
     _file = sys.stderr if level == LogLevel.ERROR else sys.stdout
 
     ''' Creating the logs folder if the folder doesn't exist '''
+    path = '/'.join(file.split('/')[:-1])
     import os
-    if not os.path.exists('Teamserver/logs'):
-        os.mkdir('Teamserver/logs')
+    if not os.path.exists(path):
+        os.mkdir(path)
     
     ''' Writing the logs to the file '''
     with open(file, 'a') as f:
@@ -79,7 +80,6 @@ def log(
 def log_error(msg, *args):
     print(f"[{Fore.RED}-{Fore.RESET}] {colorize(msg)}", file=sys.stderr, *args)
     
-
 def log_info(msg, *args):
     print(f"[{Fore.GREEN}+{Fore.RESET}] {colorize(msg)}", *args)
 

@@ -21,8 +21,6 @@ def index():
 @app.route(f'/{prefix}/base', methods=HTTP_METHODS)
 def base():
 
-    print(request.data)
-
     with open('version.conf') as f:
         version = f.read()
     
@@ -218,14 +216,66 @@ def agents():
 
     return Raidware.get_agents()
 
-
-@app.route(f'/{prefix}/prepare')
+@app.route(f'/{prefix}/prepare', methods=['POST'])
 def prepare_listener():
     resp = validate()
     if resp:
         return resp
     
     ''' This method will prepare a listener '''
+    try:
+        content_type = request.headers.get('Content-Type')
+        if content_type == 'application/json':
+            data = request.json
+        else:
+            data = request.form.to_dict()
+
+        if data == None or data == {}:
+            return {
+                'status': 'error',
+                'message': 'No data provided'
+            }, 500
+
+        ''' Checking if the fields are present '''
+        if not data.get('listener'):
+            return {
+                'status': 'error',
+                'message': 'listener field is missing'
+            }, 500
+
+        ''' Checking if the listener exists '''
+        if not Raidware.check_listener(data.get('listener')):
+            return {
+                'status': 'error',
+                'message': 'Listener does not exist'
+            }, 500
+
+
+        ''' Preparing the listener '''
+        listener = Raidware.prepare_listener(data.get('listener'))
+
+        if not listener:
+            return {
+                'status': 'error',
+                'message': 'Failed to prepare listener'
+            }, 500
+
+        return listener
+        
+    except Exception as E:
+        return {
+            "ERROR" : "Invalid request",
+            "Details" : E
+        }, 500
+
+
+@app.route(f'/{prefix}/update/<LID>', methods=['POST'])
+def update(lid : str):
+    resp = validate()
+    if resp:
+        return resp
+
+    ''' This method will update the listener '''
 
 
 @app.route(f'/{prefix}/enable')
@@ -253,7 +303,12 @@ def check():
     pass
     
 
-def init(host : str, port : int, debug : bool, team_pass : str = None):
+def init(
+    host : str,
+    port : int,
+    debug : bool,
+    team_pass : str = None
+):
 
     import shutil
     cols, rows = shutil.get_terminal_size((80, 20))

@@ -3,6 +3,17 @@ from socket import socket
 
 class BaseListener:
 
+    '''
+    Base class for all listeners
+
+    Methods:
+        __color__(self) -> str
+            This method will return the string output in a colorized format that will be displayed in the console.
+
+        onLoad(self):
+            This method will be called when the listener is loaded.
+    '''
+
     type : str
 
     @abstractmethod

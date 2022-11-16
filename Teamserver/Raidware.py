@@ -104,3 +104,35 @@ def get_listeners():
 
 def get_agents():
     return json_fetch("Teamserver/config/agents.json", "Agents")
+
+def check_listener(listener : dict):
+    listener_name = listener['name']
+    listeners = get_listeners()
+    for item in listeners.keys():
+        if item.lower() == listener_name.lower():
+            return True
+
+    return False
+
+def prepare_listener(listener : dict):
+
+    if not check_listener(listener):
+        return None
+
+    listener_name = listener['name'].lower()
+    data = get_listeners()[listener_name]
+
+    base_keys = list(data['Common']['config'].keys())
+    passed_keys = list(listener['config'].keys())
+    
+
+    ''' Verifying if the fields match '''
+    for item in passed_keys:
+        if item not in base_keys:
+            return {
+                'status' : 'error',
+                'message' : f'Invalid key "{item}" provided'
+            }
+
+    ''' Preparing the listener '''
+    
