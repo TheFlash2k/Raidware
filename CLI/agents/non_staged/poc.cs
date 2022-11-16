@@ -9,8 +9,8 @@ namespace Raidware.Agent.TCP
     internal class main
     {
 
-        const string IP = "192.168.0.100";
-        const int PORT = 9001;
+        const string IP = "127.0.0.1";
+        const int PORT = 5555;
 
         const string DELIMITER = "|RAIDWARE-EoM|";
         const string BEGIN = "|RAIDWARE-SoM|";

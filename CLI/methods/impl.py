@@ -130,7 +130,7 @@ def LISTENERS(*args):
     return json.load(open(file_name))['Listeners']
 
 def ENABLED(*args):
-    from listeners import enabled_Listeners
+    from CLI.listeners import enabled_Listeners
     print()
     utils.log_info("Enabled Listeners are: ")
     for uid, listen in enabled_Listeners.items():
