@@ -189,7 +189,6 @@ def register():
 def validate():
     ''' We need to check if the token is valid '''
     token = request.cookies.get('token')
-    print(f"Passed Token: {token}")
     if not token:
         return {
             'status': 'error',
