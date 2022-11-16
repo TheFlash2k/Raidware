@@ -10,7 +10,7 @@ namespace Raidware.Agent.TCP
     {
 
         const string IP = "127.0.0.1";
-        const int PORT = 9001;
+        const int PORT = 5555;
 
         const string DELIMITER = "|RAIDWARE-EoM|";
         const string BEGIN = "|RAIDWARE-SoM|";

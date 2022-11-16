@@ -118,86 +118,24 @@ def check_listener(listener : dict):
 
     return False
 
-def prepare_listener(listener : dict):
-
-    if not check_listener(listener):
-        return {
-            "status" : "error",
-            "message" : "Listener doesn't exist"
-        }
-
+def validate_listener(listener : dict, _type : type, field : str, str_type : str):
     try:
-        listener_name = listener['name'].lower()
+        ret = listener[field]
     except:
         return {
             'status' : 'error',
-            'message' : 'Listener name not specified'
+            'message' : f"Field '{field}' not specified"
         }
 
-    if type(listener_name) != str:
+    if type(ret) != _type:
         return {
             'status' : 'error',
-            'message' : 'Listener name must be a string'
+            'message' : f"Field '{field}' must be of type {_type}"
         }
+    
+    return ret
 
-    if not listener_name:
-        return {
-            'status' : 'error',
-            'message' : "Field 'name' not specified"
-        }
-
-    try:
-        listener_type = listener['type']
-    except:
-        return {
-            'status' : 'error',
-            'message' : "Field 'type' not specified"
-        }
-
-    if type(listener_type) != str:
-        return {
-            'status' : 'error',
-            'message' : "Field 'type' must be a string"
-        }
-
-    if not listener_type:
-        return {
-            'status' : 'error',
-            'message' : "Field 'type' cannot be empty"
-        }
-
-    listener_type = listener_type.lower().replace('-', '_')
-
-    if listener_type != "staged" and listener_type != "non_staged":
-        return {
-            'status' : 'error',
-            'message' : "Field 'type' must be either 'staged' or 'non_staged'"
-        }
-
-    ''' Checking if config field and type field is specified'''
-    try:
-        listener_config = listener['config']
-    except:
-        return {
-            'status' : 'error',
-            'message' : "Field 'config' not specified"
-        }
-
-    if type(listener_config) != dict:
-        return {
-            'status' : 'error',
-            'message' : "Field 'config' must be a dictionary"
-        }
-
-    if not listener_config:
-        return {
-            'status' : 'error',
-            'message' : "Field 'config' cannot be empty"
-        }
-
-
-    data = get_listeners()[listener_name]
-
+def validate_sub_fields(data, listener):
     base_keys = list(data['Common']['config'].keys())
     passed_keys = list(listener['config'].keys())
     
@@ -210,26 +148,152 @@ def prepare_listener(listener : dict):
                 'message' : f'Invalid key "{item}" provided in the CONFIG field.'
             }
 
-    ''' Preparing the listener '''
-    log("Preparing the Listener", LogLevel.INFO)
 
-    ''' Loading the listener '''
+    ''' Verifying if the fields are empty '''
+    for item in list(passed_keys):
+        if not listener['config'][item]:
+            return {
+                'status' : 'error',
+                'message' : f'Field "{item}" cannot be empty'
+            }
+
+    ''' Verifying if the fields are of the correct type '''
+    for item in list(passed_keys):
+        if type(listener['config'][item]) != type(data['Common']['config'][item]):
+            return {
+                'status' : 'error',
+                'message' : f'Field "{item}" must be of type {type(data["Common"]["config"][item])}'
+            }
+
+    ''' Checking if port is in passed_keys and if the port specified is in used_ports '''
+    if 'port' in passed_keys:
+        port = listener['config']['port']
+        if type(port) != int:
+            return {
+                'status' : 'error',
+                'message' : "Field 'port' must be an integer"
+            }
+
+        if port <= 1 or port > 65535:
+            return {
+                'status' : 'error',
+                'message' : "Field 'port' must be between 1 and 65535"
+            }
+
+        if port in used_ports:
+            _ = get_listener_by_port(port)
+            if _ == None:
+                used_ports.remove(port)
+                return {
+                    'status' : 'error',
+                    'message' : "An error had occurred. Please retry."
+                }
+            
+            return {
+                'status' : 'error',
+                'message' : f"Port '{port}' is already in use by the Listener {_.LID}({_.name})"
+            }
+
+        used_ports.append(port)
+
+
+def prepare_listener(listener : dict):
+
+    if not check_listener(listener):
+        return {
+            "status" : "error",
+            "message" : "Listener doesn't exist"
+        }
+
+    ''' Validate the field NAME '''
+    ret = validate_listener(listener=listener, _type=str, field='name', str_type="string")
+    if type(ret) == dict:
+        try:
+            if ret['status'] == 'error':
+                return ret
+        except:
+            pass
+
+    listener_name = ret.lower()
+
+    ''' Validate the field TYPE '''
+    ret = validate_listener(listener=listener, _type=str, field='type', str_type="string")
+    if type(ret) == dict:
+        try:
+            if ret['status'] == 'error':
+                return ret
+        except:
+            pass
+
+    listener_type = ret.lower().replace('-', '_')
+
+    if listener_type != "staged" and listener_type != "non_staged":
+        return {
+            'status' : 'error',
+            'message' : "Field 'type' must be either 'staged' or 'non_staged'"
+        }
+
+    ''' Validating the field Config '''
+    ret = validate_listener(listener=listener, _type=dict, field='config', str_type="Dictionary")
+    if type(ret) == dict:
+        try:
+            if ret['status'] == 'error':
+                return ret
+        except:
+            pass
+
+    listener_config = ret
+
+    data = get_listeners()[listener_name]
+
+    _vsf = validate_sub_fields(data=data, listener=listener)
+    if type(_vsf) == dict:
+        if _vsf['status'] == 'error':
+            return _vsf
+
+    ''' Preparing the listener '''
     module = f"Teamserver.listeners.{listener_type}.{listener_name}"
-    log(f"Loading the Listener: {module}", LogLevel.DEBUG)
     from importlib import import_module
     listener_module = import_module(module)
-    log("Loaded the Listener", LogLevel.DEBUG)
     obj = listener_module.Listener()
 
-    log("Updating the listener with the configuration variables provided")
     ''' Updating the listener with the configuration variables provided '''
-    log(f"Configuration Variables: {listener['config']}")
-    obj.setopts(**listener['config'])
-    obj.onLoad()
+    out = obj.setopts(**listener_config)
+
+    ''' Checking if the listener is already running '''
+    if out['status'] == 'error':
+        return out
+
+    obj.LID = get_random_string()
+    enabled_listeners.append(obj)
 
     return {
         'status' : 'success',
         'message' : 'Listener prepared successfully',
         'listener' : obj.__dict__()
     }
+
+def update_listener(listener : dict):
+    
+    ret = validate_listener(listener=listener, _type=str, field='LID', str_type="string")
+    if type(ret) == dict:
+        try:
+            if ret['status'] == 'error':
+                return ret
+        except:
+            pass
+
+    listener_LID = ret
+
+    ''' Checking if config field is specified'''
+    ret = validate_listener(listener=listener, _type=dict, field='config', str_type="Dictionary")
+    if type(ret) == dict:
+        try:
+            if ret['status'] == 'error':
+                return ret
+        except:
+            pass
+
+    listener_config = ret
+
     

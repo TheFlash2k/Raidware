@@ -6,6 +6,8 @@ from utils.utils import get_default_config_vars
 class Listener(BaseListener):
     name = "TCP"
     type = "Non-Staged"
+    LID = "" # Listener ID
+    status = "Not Running"
 
     def __init__(self, **kwargs):
         log("Initializing TCP listener", LogLevel.INFO)
@@ -17,8 +19,10 @@ class Listener(BaseListener):
 
     def __dict__(self):
         return {
+            'LID' : self.LID,
             'name' : self.name,
             'type' : self.type,
+            'status' : self.status,
             'options' : self.options
         }
 

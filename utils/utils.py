@@ -61,9 +61,22 @@ def get_default_config_vars(name : str):
 
     return data['Listeners'][name.lower()]['Common']['config']
 
+def get_listener_by_port(port : int):
+    for listener in enabled_listeners:
+        if listener.options['port'] == port:
+            return listener
+
+    return None
+
 ''' Variable Constants '''
 from colorama  import Fore
 RAIDWARE = f"{Fore.RED}Raid{Fore.RESET}{Fore.WHITE}ware{Fore.RESET}"
 basic_prompt = f"({RAIDWARE})"
 prompt = ">>"
 prefix = "v1"
+
+
+''' Variables '''
+used_ports = []
+enabled_listeners  = []
+agents     = []

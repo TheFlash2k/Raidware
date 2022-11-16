@@ -1,4 +1,3 @@
-from tkinter import E
 from flask import Flask, request, jsonify, Response, redirect, url_for
 import Teamserver.Raidware as Raidware
 from Teamserver.db import actions as db_actions
@@ -271,27 +270,112 @@ def prepare_listener():
         }, 500
 
 
-@app.route(f'/{prefix}/update/<LID>', methods=['POST'])
-def update(lid : str):
+@app.route(f'/{prefix}/update', methods=['POST'])
+def update():
     resp = validate()
     if resp:
         return resp
 
-    ''' This method will update the listener '''
+    ''' This method will update a listener '''
+    try:
+        content_type = request.headers.get('Content-Type')
+        if content_type == 'application/json':
+            data = request.json
+        else:
+            data = request.form.to_dict()
 
+        if data == None or data == {}:
+            return {
+                'status': 'error',
+                'message': 'No data provided'
+            }, 500
 
-@app.route(f'/{prefix}/enable')
+        ''' Checking if the fields are present '''
+        if data.get('LID') == "":
+            return {
+                'status': 'error',
+                'message': '"LID" field cannot be empty'
+            }, 500
+
+        if not data.get('LID'):
+            return {
+                'status': 'error',
+                'message': '"LID" field is missing'
+            }, 500
+
+    except Exception as E:
+        return {
+            "ERROR" : "Invalid request",
+            "Details" : f'Error: {E}'
+        }, 500
+
+@app.route(f'/{prefix}/enable', methods=['POST'])
 def enable():
     resp = validate()
     if resp:
         return resp
 
-    ''' This method will enable a listener '''
-    _ = ""
+@app.route(f'/{prefix}/enabled', methods=['GET'])
+def enabled():
+    from utils.utils import enabled_listeners
+    resp = validate()
+    if resp:
+        return resp
+
+    ''' Checking if data has been passed through json '''
+    try:
+        content_type = request.headers.get('Content-Type')
+        if content_type == 'application/json':
+            data = request.json
+        else:
+            data = request.form.to_dict()
+
+        if data == None or data == {}:
+            ''' This method will return a list of enabled listeners '''
+            return {
+                "listeners" : [i.__dict__() for i in enabled_listeners ]
+            }
+        
+        ''' Checking if the fields are present '''
+        if data.get('LID') == "":
+                return {
+                'status': 'error',
+                'message': '"LID" field cannot be empty'
+            }, 500
 
 
-@app.route(f'/{prefix}/disable/<LID>')
-def disable(lid : str):
+        ''' Checking if there are any other fields except LID '''
+        if not data.get('LID'):
+            return {
+                "listeners" : [i.__dict__() for i in enabled_listeners ]
+            }
+
+        if data.get('LID'):
+            if len(data) > 1:
+                return {
+                    'status': 'error',
+                    'message': 'Invalid fields'
+                }, 500
+        ''' Checking if listener is in enabled listeners '''
+        try:
+            return {
+                "listener" : [i.__dict__() for i in enabled_listeners if i.LID == data.get('LID')][0]
+            }
+        except:
+            return {
+                'status': 'error',
+                'message': 'Invalid LID Specified. Listener doesn\'t exist'
+            }, 500
+
+    except Exception as E:
+        return {
+            'status' : 'error',
+            'message' : f'Error: {E}'
+        }
+
+
+@app.route(f'/{prefix}/disable')
+def disable():
     resp = validate()
     if resp:
         return resp
@@ -304,6 +388,30 @@ def check():
     ''' This will check if any new connections have been received on the listeners. '''
     pass
     
+@app.route(f'/{prefix}/logout', methods=['POST'])
+def logout():
+    ''' This will logout the user '''
+    resp = validate()
+    if resp:
+        return resp
+
+    ''' Decrypting the received token '''
+    token = request.cookies.get('token')
+    token = Raidware.decrypt_token(token)
+    
+    if token == None:
+        return {
+            'status': 'error',
+            'message': 'No user logged in.'
+        }, 401
+
+    name = token.split('|')[0]
+    log(f"Logged out {name}", LogLevel.INFO)
+
+    res = jsonify(status='success', message=f'Successfully logged out {name}')
+    res.set_cookie('token', '')
+    return res
+
 
 def init(
     host : str,
@@ -325,30 +433,8 @@ def init(
     print(f"\n{'=' * cols}\n{' ' * rows}{Back.RED}TEAMSERVER PASSWORD{Back.RESET}: {Fore.RED}{Raidware.get_team_password()}{Fore.RESET}")
     print(f"[{Fore.GREEN}*{Fore.RESET}] Note: This password won't be stored in the log to prevent it from being leaked.\n{'=' * cols}")
 
+    from utils.utils import used_ports
+    used_ports.append(port)
+
     app.run(host=host, port=port, debug=debug)
 
-
-@app.route(f'/{prefix}/logout', methods=['POST'])
-def logout():
-    ''' This will logout the user '''
-    resp = validate()
-
-    ''' Decrypting the received token '''
-    token = request.cookies.get('token')
-    token = Raidware.decrypt_token(token)
-    
-    if token == None:
-        return {
-            'status': 'error',
-            'message': 'No user logged in.'
-        }, 401
-
-    name = token.split('|')[0]
-    log(f"Logged out {name}", LogLevel.INFO)
-
-    if resp:
-        return resp
-
-    res = jsonify(status='success', message=f'Successfully logged out {name}')
-    res.set_cookie('token', '')
-    return res
