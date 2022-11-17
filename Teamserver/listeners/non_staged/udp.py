@@ -13,8 +13,10 @@ class Listener(BaseListener):
         self.options = get_default_config_vars(name=self.name)
 
     def onLoad(self):
-        log("OnLoad function called.")
-        pass
+        log(f"({self.name}) OnLoad function called.")
+
+    def onStop(self):
+        log(f"({self.name}) OnStop Function Called")
 
     def __dict__(self):
         return {

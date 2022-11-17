@@ -3,7 +3,7 @@ import Teamserver.Raidware as Raidware
 from Teamserver.db import actions as db_actions
 from utils.crypto import SHA512
 from utils.logger import *
-from utils.utils import prefix
+from utils.utils import *
 
 import sys
 sys.dont_write_bytecode = True
@@ -290,23 +290,17 @@ def update():
                 'message': 'No data provided'
             }, 500
 
-        ''' Checking if the fields are present '''
-        if data.get('LID') == "":
-            return {
-                'status': 'error',
-                'message': '"LID" field cannot be empty'
-            }, 500
+        _ = Raidware.update_listener(data)
+        if type(_) == dict:
+            if _['status'] == 'error':
+                return _, 500
 
-        if not data.get('LID'):
-            return {
-                'status': 'error',
-                'message': '"LID" field is missing'
-            }, 500
+        return _
 
     except Exception as E:
         return {
-            "ERROR" : "Invalid request",
-            "Details" : f'Error: {E}'
+            "status" : "error",
+            "message" : f'Error: {E}'
         }, 500
 
 @app.route(f'/{prefix}/enable', methods=['POST'])
@@ -314,6 +308,158 @@ def enable():
     resp = validate()
     if resp:
         return resp
+
+    try:
+        content_type = request.headers.get('Content-Type')
+        if content_type == 'application/json':
+            data = request.json
+        else:
+            data = request.form.to_dict()
+
+        if data == None or data == {}:
+            return {
+                'status': 'error',
+                'message': 'No data provided'
+            }, 500
+
+        ''' Checking if the fields are present '''
+        if not data.get('LID'):
+            return {
+                'status': 'error',
+                'message': '"LID" field is missing'
+            }, 500
+
+        if data.get('LID'):
+            if len(data) > 1:
+                return {
+                    'status': 'error',
+                    'message': 'Only "LID" field is required'
+                }, 500
+
+        ''' Checking if the listener exists '''
+        log(f"LID: {data.get('LID')}")
+        try:
+            listener = [i for i in enabled_listeners if i.LID == data.get('LID')][0]
+        except:
+            return {
+                'status': 'error',
+                'message': 'Invalid LID Specified. Listener doesn\'t exist'
+            }
+
+        ''' Updating the listener '''
+        if not listener:
+            return {
+                'status': 'error',
+                'message': 'Failed to update listener'
+            }
+
+        if listener.status.lower().strip() == 'running':
+            return {
+                'status': 'error',
+                'message': 'Listener is already running'
+            }
+
+        listener.status = 'Running'
+        listener.onLoad()
+        return {
+            'status': 'success',
+            'message': 'Listener started successfully'
+        }
+
+    except Exception as E:
+        return {
+            "status" : "error",
+            "message" : f'Error: {E}'
+        }, 500
+
+@app.route(f'/{prefix}/disable', methods=['POST'])
+def disable():
+    resp = validate()
+    if resp:
+        return resp
+
+    try:
+        content_type = request.headers.get('Content-Type')
+        if content_type == 'application/json':
+            data = request.json
+        else:
+            data = request.form.to_dict()
+
+        if data == None or data == {}:
+            return {
+                'status': 'error',
+                'message': 'No data provided'
+            }, 500
+
+        ''' Checking if the fields are present '''
+        if not data.get('LID'):
+            return {
+                'status': 'error',
+                'message': '"LID" field is missing'
+            }, 500
+
+        if data.get('LID'):
+            if len(data) > 1:
+                return {
+                    'status': 'error',
+                    'message': 'Only "LID" field is required'
+                }, 500
+
+        ''' Checking if the listener exists '''
+        log(f"LID: {data.get('LID')}")
+        try:
+            listener = [i for i in enabled_listeners if i.LID == data.get('LID')][0]
+        except:
+            return {
+                'status': 'error',
+                'message': 'Invalid LID Specified. Listener doesn\'t exist'
+            }
+
+        if listener.status.lower().strip() == 'not running':
+            return {
+                'status': 'error',
+                'message': 'Listener is already stopped'
+            }
+
+        listener.status = 'Not Running'
+        listener.onStop()
+        return {
+            'status': 'success',
+            'message': 'Listener stopped successfully'
+        }
+
+    except Exception as E:
+        return {
+            "status" : "error",
+            "message" : f'Error: {E}'
+        }, 500
+
+@app.route(f'/{prefix}/delete', methods=['POST'])
+def delete():
+    resp = validate()
+    if resp:
+        return resp
+
+    ''' This method will delete a listener '''
+    try:
+        content_type = request.headers.get('Content-Type')
+        if content_type == 'application/json':
+            data = request.json
+        else:
+            data = request.form.to_dict()
+
+        if data == None or data == {}:
+            return {
+                'status': 'error',
+                'message': 'No data provided'
+            }, 500
+    
+    except Exception as E:
+        return {
+            "status" : "error",
+            "message" : f'Error: {E}'
+        }, 500
+
 
 @app.route(f'/{prefix}/enabled', methods=['GET'])
 def enabled():
@@ -372,16 +518,6 @@ def enabled():
             'status' : 'error',
             'message' : f'Error: {E}'
         }
-
-
-@app.route(f'/{prefix}/disable')
-def disable():
-    resp = validate()
-    if resp:
-        return resp
-
-    ''' This method will disable a listener'''
-    _ = ""
 
 @app.route(f'/{prefix}/check')
 def check():

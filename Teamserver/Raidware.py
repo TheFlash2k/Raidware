@@ -118,85 +118,6 @@ def check_listener(listener : dict):
 
     return False
 
-def validate_listener(listener : dict, _type : type, field : str, str_type : str):
-    try:
-        ret = listener[field]
-    except:
-        return {
-            'status' : 'error',
-            'message' : f"Field '{field}' not specified"
-        }
-
-    if type(ret) != _type:
-        return {
-            'status' : 'error',
-            'message' : f"Field '{field}' must be of type {_type}"
-        }
-    
-    return ret
-
-def validate_sub_fields(data, listener):
-    base_keys = list(data['Common']['config'].keys())
-    passed_keys = list(listener['config'].keys())
-    
-    ''' Verifying if the fields match '''
-    for item in list(passed_keys):
-
-        if item not in base_keys:
-            return {
-                'status' : 'error',
-                'message' : f'Invalid key "{item}" provided in the CONFIG field.'
-            }
-
-
-    ''' Verifying if the fields are empty '''
-    for item in list(passed_keys):
-        if not listener['config'][item]:
-            return {
-                'status' : 'error',
-                'message' : f'Field "{item}" cannot be empty'
-            }
-
-    ''' Verifying if the fields are of the correct type '''
-    for item in list(passed_keys):
-        if type(listener['config'][item]) != type(data['Common']['config'][item]):
-            return {
-                'status' : 'error',
-                'message' : f'Field "{item}" must be of type {type(data["Common"]["config"][item])}'
-            }
-
-    ''' Checking if port is in passed_keys and if the port specified is in used_ports '''
-    if 'port' in passed_keys:
-        port = listener['config']['port']
-        if type(port) != int:
-            return {
-                'status' : 'error',
-                'message' : "Field 'port' must be an integer"
-            }
-
-        if port <= 1 or port > 65535:
-            return {
-                'status' : 'error',
-                'message' : "Field 'port' must be between 1 and 65535"
-            }
-
-        if port in used_ports:
-            _ = get_listener_by_port(port)
-            if _ == None:
-                used_ports.remove(port)
-                return {
-                    'status' : 'error',
-                    'message' : "An error had occurred. Please retry."
-                }
-            
-            return {
-                'status' : 'error',
-                'message' : f"Port '{port}' is already in use by the Listener {_.LID}({_.name})"
-            }
-
-        used_ports.append(port)
-
-
 def prepare_listener(listener : dict):
 
     if not check_listener(listener):
@@ -283,8 +204,6 @@ def update_listener(listener : dict):
         except:
             pass
 
-    listener_LID = ret
-
     ''' Checking if config field is specified'''
     ret = validate_listener(listener=listener, _type=dict, field='config', str_type="Dictionary")
     if type(ret) == dict:
@@ -294,6 +213,65 @@ def update_listener(listener : dict):
         except:
             pass
 
-    listener_config = ret
+    ''' We now have the listener id'''
+    try:
+        listener = [i for i in enabled_listeners if i.LID == listener.get('LID')][0]
+    except:
+        return {
+            'status': 'error',
+            'message': 'Invalid LID Specified. Listener doesn\'t exist'
+        }
 
+    ''' Updating the listener '''
+    if not listener:
+        return {
+            'status': 'error',
+            'message': 'Failed to update listener'
+        }
+
+    if listener.status.lower().strip() == 'running':
+        return {
+            'status': 'error',
+            'message': 'Listener is already running. Cannot Update it.'
+        }
+
+    listener_config = ret
+    old_config = listener.options
+
+    ''' Creating two dictionaries, one with the old config and one with the new config '''
+    old_diff = {}
+
+    for k, v in old_config.items():
+        try:
+            if listener_config[k] != v:
+                old_diff[k] = v
+        except KeyError:
+            continue
+
+    if old_diff == {}:
+        return {
+            'status': 'warning',
+            'message': 'No changes were made to the listener'
+        }
+
+    _pop = []
+    for k in listener_config.keys():
+        if k not in old_config.keys():
+            _pop.append(k)
+
+    for k in _pop:
+        listener_config.pop(k)
+
+    ''' Updating the listener with the configuration variables provided '''
+    out = listener.setopts(**listener_config)
+
+    if out['status'] == 'error':
+        return out
+
+    return {
+        'status' : 'success',
+        'message' : 'Listener updated successfully',
+        'from' : old_diff,
+        'to' : listener_config
+    }
     
