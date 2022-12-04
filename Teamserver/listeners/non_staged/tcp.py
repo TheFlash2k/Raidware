@@ -18,6 +18,7 @@ class Listener(BaseListener):
     thread = None
     sock = socket(AF_INET, SOCK_STREAM)
     sock.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)
+    bind = 0
 
     def __init__(self, **kwargs):
         log("Initializing TCP listener", LogLevel.INFO)
@@ -48,13 +49,14 @@ class Listener(BaseListener):
             except:
                 return None
 
-        try:
-            self.sock.bind((self.options['host'], self.options['port']))
-        except Exception as E:
-            log_error(f"Exception: {E}")
-            log_error("([GREEN]TCP[RESET]) Failed to bind to the specified address and port.")
-            self.sock = None
-            return
+        if not self.bind:
+            try:
+                self.sock.bind((self.options['host'], self.options['port']))
+                self.bind = 1
+            except Exception as E:
+                log_error(f"Exception: {E}")
+                log_error("([GREEN]TCP[RESET]) Failed to bind to the specified address and port.")
+                self.sock = None
 
         if self.sock == None:
             log_error("([GREEN]TCP[RESET]) An error had occurred when creating the socket for listener. Please check...")
@@ -133,3 +135,25 @@ class Listener(BaseListener):
             'status' : 'success',
             'message' : "Updated the values."
         }
+
+    def onSend(self, msg : str, **kwargs):
+        socket = self.sock if 'socket' not in kwargs.keys() else kwargs['socket']
+
+        msg = self.options['begin-delimiter'] + "{" + msg + "}" + self.options['end-delimiter']
+        try:
+            socket.send(msg.encode())
+        except ConnectionResetError:
+            log_error(f"Connection lost...")
+            return None
+
+    def onRecv(self, **kwargs):
+
+        socket = self.sock if 'socket' not in kwargs.keys() else kwargs['socket']
+        try:
+            buf = socket.recv(4096).decode()
+        except ConnectionResetError:
+            log_error(f"Connection lost...")
+            return None
+
+        buf = buf.split(self.options['begin-delimiter'])[1].split(self.options['end-delimiter'])[0][1:]
+        return buf[:-1]
