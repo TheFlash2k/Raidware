@@ -570,7 +570,7 @@ def init(
     print(f"[{Fore.GREEN}*{Fore.RESET}] Note: This password won't be stored in the log to prevent it from being leaked.\n{'=' * cols}")
 
     from utils.utils import used_ports
-    used_ports.append(port)
+    used_ports[port] = "Teamserver"
 
     app.run(host=host, port=port, debug=debug)
 

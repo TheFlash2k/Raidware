@@ -1,4 +1,28 @@
 import json
+import ctypes
+
+
+def terminate_thread(thread):
+    """Terminates a python thread from another thread.
+
+    :param thread: a threading.Thread instance
+    """
+    try:
+        if not thread.isAlive():
+            return
+    except:
+        pass
+
+    exc = ctypes.py_object(SystemExit)
+    res = ctypes.pythonapi.PyThreadState_SetAsyncExc(
+        ctypes.c_long(thread.ident), exc)
+    if res == 0:
+        raise ValueError("nonexistent thread id")
+    elif res > 1:
+        # """if it returns a number greater than one, you're in trouble,
+        # and you should call it again with exc=NULL to revert the effect"""
+        ctypes.pythonapi.PyThreadState_SetAsyncExc(thread.ident, None)
+        raise SystemError("PyThreadState_SetAsyncExc failed")
 
 def json_fetch(file_name : str, field : str):
     with open(file_name, 'r') as f:
@@ -130,10 +154,10 @@ def validate_sub_fields(data, listener):
                 'message' : "Field 'port' must be between 1 and 65535"
             }
 
-        if port in used_ports:
+        if port in used_ports.keys():
             _ = get_listener_by_port(port)
             if _ == None:
-                used_ports.remove(port)
+                used_ports.pop(port)
                 return {
                     'status' : 'error',
                     'message' : "An error had occurred. Please retry."
@@ -144,7 +168,7 @@ def validate_sub_fields(data, listener):
                 'message' : f"Port '{port}' is already in use by the Listener {_.LID}({_.name})"
             }
 
-        used_ports.append(port)
+        # used_ports[port] = _.LID
 
 
 ''' Variable Constants '''
@@ -156,6 +180,6 @@ prefix = "v1"
 
 
 ''' Variables '''
-used_ports = []
+used_ports = {  }
 enabled_listeners  = []
 agents     = []

@@ -176,7 +176,11 @@ def prepare_listener(listener : dict):
     module = f"Teamserver.listeners.{listener_type}.{listener_name}"
     from importlib import import_module
     listener_module = import_module(module)
-    obj = listener_module.Listener()
+
+    try:
+        obj = listener_module.Listener()
+    except Exception as E:
+        pass
 
     ''' Updating the listener with the configuration variables provided '''
     out = obj.setopts(**listener_config)

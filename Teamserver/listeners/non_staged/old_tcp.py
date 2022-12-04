@@ -70,6 +70,7 @@ class Listener(BaseListener):
         except:
             log_error("([GREEN]TCP[RESET]) Failed to bind to the specified address and port.")
             self.sock = None
+            return
 
         if self.sock == None:
             log_error("([GREEN]TCP[RESET]) An error had occurred when creating the socket for listener. Please check...")
