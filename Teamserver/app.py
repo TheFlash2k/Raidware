@@ -1,4 +1,5 @@
 from flask import Flask, request, jsonify, Response, redirect, url_for
+from flask_cors import CORS, cross_origin
 import Teamserver.Raidware as Raidware
 from Teamserver.db import actions as db_actions
 from utils.crypto import SHA512
@@ -13,14 +14,19 @@ __log__ = logging.getLogger('werkzeug')
 __log__.setLevel(logging.ERROR)
 
 app = Flask(__name__)
+cors = CORS(app)
+app.config['CORS_HEADERS'] = 'Content-Type'
+
 HTTP_METHODS = ['GET', 'HEAD', 'POST', 'PUT', 'DELETE', 'CONNECT', 'OPTIONS', 'TRACE', 'PATCH']
 
 @app.route("/", methods=HTTP_METHODS)
+@cross_origin
 def index():
     ''' Redirect to {prefix}/base'''
     return redirect(url_for('base'))
 
 @app.route(f'/{prefix}/base', methods=HTTP_METHODS)
+@cross_origin
 def base():
 
     with open('version.conf') as f:
@@ -32,6 +38,7 @@ def base():
     }
 
 @app.route(f'/{prefix}/auth', methods=['POST'])
+@cross_origin
 def auth():
 
     ''' Checking if a valid token already exists: ''' 
@@ -114,11 +121,13 @@ def auth():
     return res  
 
 @app.route(f'/{prefix}/login', methods=['POST'])
+@cross_origin
 def login():
     ''' Redirect to /auth '''
     return auth()
 
 @app.route(f'/{prefix}/register', methods=['POST'])
+@cross_origin
 def register():
     try:
         content_type = request.headers.get('Content-Type')
@@ -203,6 +212,7 @@ def validate():
     return None
 
 @app.route(f'/{prefix}/listeners')
+@cross_origin
 def listeners():    
     resp = validate()
     if resp:
@@ -210,6 +220,7 @@ def listeners():
     return Raidware.get_listeners()
 
 @app.route(f'/{prefix}/agents')
+@cross_origin
 def agents():
     resp = validate()
     if resp:
@@ -218,6 +229,7 @@ def agents():
     return Raidware.get_agents()
 
 @app.route(f'/{prefix}/prepare', methods=['POST'])
+@cross_origin
 def prepare_listener():
     resp = validate()
     if resp:
@@ -271,6 +283,7 @@ def prepare_listener():
 
 
 @app.route(f'/{prefix}/update', methods=['POST'])
+@cross_origin
 def update():
     resp = validate()
     if resp:
@@ -304,6 +317,7 @@ def update():
         }, 500
 
 @app.route(f'/{prefix}/enable', methods=['POST'])
+@cross_origin
 def enable():
     resp = validate()
     if resp:
@@ -373,6 +387,7 @@ def enable():
         }, 500
 
 @app.route(f'/{prefix}/disable', methods=['POST'])
+@cross_origin
 def disable():
     resp = validate()
     if resp:
@@ -435,6 +450,7 @@ def disable():
         }, 500
 
 @app.route(f'/{prefix}/delete', methods=['POST'])
+@cross_origin
 def delete():
     resp = validate()
     if resp:
@@ -462,6 +478,7 @@ def delete():
 
 
 @app.route(f'/{prefix}/enabled', methods=['GET'])
+@cross_origin
 def enabled():
     from utils.utils import enabled_listeners
     resp = validate()
@@ -520,11 +537,13 @@ def enabled():
         }
 
 @app.route(f'/{prefix}/check')
+@cross_origin
 def check():
     ''' This will check if any new connections have been received on the listeners. '''
     pass
     
 @app.route(f'/{prefix}/logout', methods=['POST'])
+@cross_origin
 def logout():
     ''' This will logout the user '''
     resp = validate()
