@@ -14,7 +14,7 @@ __log__ = logging.getLogger('werkzeug')
 __log__.setLevel(logging.ERROR)
 
 app = Flask(__name__)
-cors = CORS(app)
+CORS(app)
 app.config['CORS_HEADERS'] = 'Content-Type'
 
 HTTP_METHODS = ['GET', 'HEAD', 'POST', 'PUT', 'DELETE', 'CONNECT', 'OPTIONS', 'TRACE', 'PATCH']
@@ -25,7 +25,6 @@ def index():
     return redirect(url_for('base'))
 
 @app.route(f'/{prefix}/base', methods=HTTP_METHODS)
-@cross_origin
 def base():
 
     with open('version.conf') as f:

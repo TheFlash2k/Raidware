@@ -6,7 +6,7 @@ subparsers = parser.add_subparsers(required=True, dest='mode')
 server_parser = subparsers.add_parser('server', help='Start the Raidware Teamserver.')
 server_parser.add_argument('-H', '--host', help='Specify the host to bind the Teamserver to.', default='0.0.0.0', type=str)
 server_parser.add_argument('-p', '--port', help='Specify the port to bind the Teamserver to.', default=5000, type=int)
-server_parser.add_argument('-d', '--debug', help='Enable debug mode.', action='store_true')
+server_parser.add_argument('-D', '--debug', help='Enable debug mode.', action='store_true')
 server_parser.add_argument('-T', '--team-password', help='Set a custom Team Password that your team will authenticate with', default=None, type=str)
 server_parser.add_argument('-B', '--background', help="Run the Teamserver in the background.", action='store_true')
 
