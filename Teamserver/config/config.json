@@ -2,7 +2,7 @@
     "Raidware_Configuration" :
     {
         "LOG_FILE" : "logs/raidware.log",
-        "DEBUG" : false,
+        "DEBUG" : true,
         "SECRET_KEY" : "r@1dw@r3_k3y"
     }
 }

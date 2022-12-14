@@ -6,19 +6,20 @@
             "config" : {
                 "host" : "0.0.0.0",
                 "port" : 9001,
+                "ssl" : false,
                 "begin-delimiter" : "|RAIDWARE-SoM|",
                 "end-delimiter" :  "|RAIDWARE-EoM|"
             },
             "types" : ["Non-Staged", "Staged"], 
             "details" : {
                 "Non-Staged" : {
-                    "path" : "listeners/staged/tcp.py"
+                    "path" : "listeners/staged/tcp.py",
+                    "arch" : ["x86", "x64"]
                 },
 
                 "Staged" : {
                     "path" : "listeners/staged/tcp.py",
                     "payload_size" : null,
-                    "payload_type" : "staged",
                     "arch" : ["x86", "x64"]
                 }
             }

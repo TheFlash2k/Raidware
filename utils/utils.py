@@ -83,7 +83,18 @@ def get_default_config_vars(name : str):
     with open('Teamserver/config/listeners.json', 'r') as f:
         data  = json.load(f)
 
-    return data['Listeners'][name.lower()]['Common']['config']
+    try:
+        ## Fetch the index from the list where the name matches
+        index = -1
+        for i in range(len(data['Listeners'])):
+            if data['Listeners'][i]['name'] == name.lower():
+                index = i
+                break
+        if index == -1:
+            return None
+        return data['Listeners'][index]['config']
+    except:
+        return None
 
 def get_listener_by_port(port : int):
     for listener in enabled_listeners:
@@ -110,18 +121,19 @@ def validate_listener(listener : dict, _type : type, field : str, str_type : str
     return ret
 
 def validate_sub_fields(data, listener):
-    base_keys = list(data['Common']['config'].keys())
+    base_keys = list(data['config'].keys())
     passed_keys = list(listener['config'].keys())
     
+    print(f"Base Keys: {base_keys}")
+    print(f"Pass Keys: {passed_keys}")
+
     ''' Verifying if the fields match '''
     for item in list(passed_keys):
-
         if item not in base_keys:
             return {
                 'status' : 'error',
                 'message' : f'Invalid key "{item}" provided in the CONFIG field.'
             }
-
 
     ''' Verifying if the fields are empty '''
     for item in list(passed_keys):
@@ -133,10 +145,10 @@ def validate_sub_fields(data, listener):
 
     ''' Verifying if the fields are of the correct type '''
     for item in list(passed_keys):
-        if type(listener['config'][item]) != type(data['Common']['config'][item]):
+        if type(listener['config'][item]) != type(data['config'][item]):
             return {
                 'status' : 'error',
-                'message' : f'Field "{item}" must be of type {type(data["Common"]["config"][item])}'
+                'message' : f'Field "{item}" must be of type {type(data["config"][item])}'
             }
 
     ''' Checking if port is in passed_keys and if the port specified is in used_ports '''

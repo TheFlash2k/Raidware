@@ -25,8 +25,6 @@ class Listener(BaseListener):
         self.options = get_default_config_vars(name=self.name)
 
         ''' Checking if the port is already being used: '''
-
-
         self.curr_port = self.options['port']
         log(f"Current Port: {self.curr_port}")
         if self.curr_port in used_ports.keys():
@@ -138,7 +136,6 @@ class Listener(BaseListener):
 
     def onSend(self, msg : str, **kwargs):
         socket = self.sock if 'socket' not in kwargs.keys() else kwargs['socket']
-
         msg = self.options['begin-delimiter'] + "{" + msg + "}" + self.options['end-delimiter']
         try:
             socket.send(msg.encode())

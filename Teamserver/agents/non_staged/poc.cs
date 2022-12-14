@@ -9,7 +9,7 @@ namespace Raidware.Agent.TCP
     internal class main
     {
 
-        const string IP = "127.0.0.1";
+        const string IP = "192.168.43.110";
         const int PORT = 5555;
 
         const string DELIMITER = "|RAIDWARE-EoM|";

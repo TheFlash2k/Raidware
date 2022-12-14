@@ -62,10 +62,15 @@ def SHELL(*args):
             print(rcv)
         except KeyboardInterrupt:
             print()
+            if curr[0].lower() == "quit" or curr[0].lower() == "exit":
+                break
             log_error("Please type \"[RED]EXIT[RESET]\" or \"[RED]QUIT[RESET]\" to break out of the shell.")
             continue
         except EOFError:
             print()
+            if curr[0].lower() == "quit" or curr[0].lower() == "exit":
+                break
+            
             log_error("Please type \"[RED]EXIT[RESET]\" or \"[RED]QUIT[RESET]\" to break out of the shell.")
             continue
 

@@ -111,9 +111,11 @@ def check_listener(listener : dict):
     except:
         return False
 
+
     listeners = get_listeners()
-    for item in listeners.keys():
-        if item.lower() == listener_name.lower():
+
+    for item in listeners:
+        if item['name'] == listener_name.lower():
             return True
 
     return False
@@ -126,6 +128,8 @@ def prepare_listener(listener : dict):
             "message" : "Listener doesn't exist"
         }
 
+    print("Validating....")
+
     ''' Validate the field NAME '''
     ret = validate_listener(listener=listener, _type=str, field='name', str_type="string")
     if type(ret) == dict:
@@ -134,7 +138,7 @@ def prepare_listener(listener : dict):
                 return ret
         except:
             pass
-
+    
     listener_name = ret.lower()
 
     ''' Validate the field TYPE '''
@@ -164,9 +168,29 @@ def prepare_listener(listener : dict):
             pass
 
     listener_config = ret
+    try:
+        data = get_listeners()
 
-    data = get_listeners()[listener_name]
+        index = -1
+        for i in range(len(data)):
+            if data[i]['name'] == listener_name.lower():
+                index = i
+                break
 
+        if index == -1:
+            return {
+                'status' : 'error',
+                'message' : "Listener doesn't exist"
+            }
+
+        data = data[index]
+    except:
+        return {
+            'status' : 'error',
+            'message' : "Listener doesn't exist"
+        }
+
+    print("Validating sub fields")
     _vsf = validate_sub_fields(data=data, listener=listener)
     if type(_vsf) == dict:
         if _vsf['status'] == 'error':
@@ -177,10 +201,11 @@ def prepare_listener(listener : dict):
     from importlib import import_module
     listener_module = import_module(module)
 
+    print(listener_module)
     try:
         obj = listener_module.Listener()
     except Exception as E:
-        pass
+        print(f"Error: {E}")
 
     ''' Updating the listener with the configuration variables provided '''
     out = obj.setopts(**listener_config)

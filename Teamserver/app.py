@@ -210,7 +210,7 @@ def listeners():
     resp = validate()
     if resp:
         return resp
-    return Raidware.get_listeners()
+    return {"Listeners" : Raidware.get_listeners()}
 
 @app.route(f'/{prefix}/agents')
 def agents():
@@ -247,13 +247,13 @@ def prepare_listener():
                 'message': '"listener" field is missing'
             }, 500
 
+
         ''' Checking if the listener exists '''
         if not Raidware.check_listener(data.get('listener')):
             return {
                 'status': 'error',
                 'message': 'Listener does not exist'
             }, 500
-
 
         ''' Preparing the listener '''
         listener = Raidware.prepare_listener(data.get('listener'))
@@ -268,8 +268,8 @@ def prepare_listener():
 
     except Exception as E:
         return {
-            "ERROR" : "Invalid request",
-            "Details" : f'Error: {E}'
+            "status" : "error",
+            "Details" : f'Invalid Request. Error: {E}'
         }, 500
 
 
