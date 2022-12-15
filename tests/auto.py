@@ -9,7 +9,7 @@ PORT = 5000
 USERNAME = "theflash2k"
 PASSWORD = "theflash2k"
 TEAMSERVER_PASSWORD = "123"
-COOKIE = "oaBYXtgSNGePZdHkGzWq8DxBTmBuRtANfl4OMg4840U9n/KIgst+RtQ/zrHAN7on" # Specify the cookie here.
+COOKIE = "SHZI4sCdoIr7%2ByM2KpRPzyq%2Fm6MLxl8A%2BkzZZis7awaMnop8BfOo0%2FG6AzQJR7hc" # Specify the cookie here.
 
 def make_request(url, endpoint, data, cookie = {}):
     r = requests.post(
@@ -55,7 +55,7 @@ if __name__ == "__main__":
             "type" : "non-staged",
             "config" : {
                 "host" : "0.0.0.0",
-                "port" : 65343
+                "port" : 6542
             }
         }
     }
