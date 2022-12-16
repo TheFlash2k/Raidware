@@ -12,6 +12,7 @@ from CLI.methods.interact import _interact
 def CLEAR(*args):
     from os import system, name
     system("cls" if name == "nt" else "clear")
+    
 def EXIT(*args):
     utils.exit_valid()
     

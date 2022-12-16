@@ -59,8 +59,10 @@ class Listener(BaseListener):
             log_info("A connection has been received. Verifying the connection...")
             uid = get_random_string()
             self.onSend(uid, socket=conn)
-            recv = self.onRecv(socket=conn).split('|')
+            recv = self.onRecv(socket=conn)
             try:
+                print(f"Received Buffer: {recv}")
+                recv = recv.split('|')
                 return (recv[0] == "RAIDWARE_INIT"), recv[1], uid, recv[2], recv[3], recv[4], recv[5]
             except:
                 return None
@@ -209,8 +211,8 @@ class Listener(BaseListener):
             return None
 
         try:
-            buf = buf.split(self.options['begin-delimiter'])[1].split(self.options['end-delimiter'])[0][1:]
+            buf = buf.split(self.opts['BEGIN_DELIMITER'])[1].split(self.opts['END_DELIMITER'])[0][1:-1]
         except:
             log_error(f"Received data: {buf}")
             log_error("Unable to parse the received data. Returning the raw data...")
-            return buf
+        return buf
