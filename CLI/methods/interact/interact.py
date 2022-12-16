@@ -8,6 +8,7 @@ def CLEAR(*args):
 class Handle:
     conn = None
     is_running = True
+    _isExit = False
 
 def EXIT(*args):
     Handle.is_running = False
