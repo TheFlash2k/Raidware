@@ -72,3 +72,9 @@ def fetch_config(protocol : str) -> dict:
         return None
 
     return ret
+
+def get_random_string(_len = 25):
+    import string
+    import random
+    includes = string.ascii_letters + string.digits
+    return ''.join(random.choice(includes) for i in range(_len))

