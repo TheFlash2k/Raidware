@@ -4,7 +4,7 @@ from CLI.utils.colors import log_error
 def CLEAR(*args):
     from os import system, name
     system("cls" if name == "nt" else "clear")
-    
+
 class Handle:
     conn = None
     is_running = True
@@ -39,13 +39,13 @@ def SHELL(*args):
                 continue
             if cmd.lower() == "quit"  or cmd.lower() == "exit":
                 Handle._isExit = True
-                Handle.conn.send("RAIDWARE-INTERACT-END")
-                rcv = Handle.conn.recv()
-                if rcv == "END-ACK":
-                    break
-                else:
-                    log_error("Unable to close the connection. Forcefully breaking out...")
-                    break
+                # Handle.conn.send("RAIDWARE-INTERACT-END")
+                # rcv = Handle.conn.recv()
+                # if rcv == "END-ACK":
+                #     break
+                # else:
+                #     log_error("Unable to close the connection. Forcefully breaking out...")
+                #     break
 
             if cmd.lower() == "clear" or cmd.lower() == "cls":
                 CLEAR()
