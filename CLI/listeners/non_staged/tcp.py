@@ -27,6 +27,8 @@ class Listener(BaseListener):
             "END_DELIMITER" : self.DELIMITER
         }
 
+        self.UID = create_new_UID()
+
         self.sock = socket(AF_INET, SOCK_STREAM)
         self.sock.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)
         self.thread = None
@@ -82,7 +84,7 @@ class Listener(BaseListener):
 
         self.sock.listen()
         log_info(f"([GREEN]TCP[RESET]) Listening on [CYAN]{self.opts['LHOST']}[RESET]:[CYAN]{self.opts['LPORT']}[RESET]")
-
+        enabled_Listeners[self.UID] = self
         while True:
             conn, addr = self.sock.accept()
 
