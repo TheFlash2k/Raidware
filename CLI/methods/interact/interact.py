@@ -45,7 +45,7 @@ def SHELL(*args):
                 #     break
                 # else:
                 #     log_error("Unable to close the connection. Forcefully breaking out...")
-                #     break
+                break
 
             if cmd.lower() == "clear" or cmd.lower() == "cls":
                 CLEAR()
