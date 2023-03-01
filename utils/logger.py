@@ -42,7 +42,8 @@ class LogLevel:
 def log(
     msg,
     level : LogLevel = LogLevel.DEBUG,
-    *args
+    *args,
+    **kargs
 ):
 
     msg = f"[[CYAN]{current_time()}[RESET]] [{level[2]}{level[1]}[RESET]] {msg}"
@@ -75,13 +76,13 @@ def log(
         f.write(clean + '\n')
 
     ''' Printing the logs to the console '''
-    print(msg, file=_file, *args)
+    print(msg, file=_file, *args, **kargs)
 
-def log_error(msg, *args):
-    print(f"[{Fore.RED}-{Fore.RESET}] {colorize(msg)}", file=sys.stderr, *args)
+def log_error(msg, *args, **kargs):
+    print(f"[{Fore.RED}-{Fore.RESET}] {colorize(msg)}", file=sys.stderr, *args, **kargs)
     
-def log_info(msg, *args):
-    print(f"[{Fore.GREEN}+{Fore.RESET}] {colorize(msg)}", *args)
+def log_info(msg, *args, **kargs):
+    print(f"[{Fore.GREEN}+{Fore.RESET}] {colorize(msg)}", *args, **kargs)
 
 def color_print(msg, *args):
     print(colorize(msg), *args)

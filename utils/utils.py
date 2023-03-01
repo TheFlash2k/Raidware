@@ -182,6 +182,27 @@ def validate_sub_fields(data, listener):
 
         # used_ports[port] = _.LID
 
+def check_utils():
+    import shutil
+    from utils.logger import log_error, log
+
+    cmds = (
+        "csc",
+        "x86_64-w64-mingw32-g++",
+        "x86_64-w64-mingw32-gcc",
+    )
+
+    log("Checking for required utilities...")
+    for cmd in cmds:
+        msg = f"Checking for '{cmd}' "
+        log(f"{msg}\r", end='')
+        if not shutil.which(cmd):
+            log_error(f"Command '{cmd}' not found. Please install it and try again.")
+            return False
+        log(f"{msg} - Found")
+
+    return True
+
 
 ''' Variable Constants '''
 from colorama  import Fore
