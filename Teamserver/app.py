@@ -220,7 +220,7 @@ def register():
         }
 
     ''' Adding the user to the database and checking if it exists '''
-    if not UserManager.add_user(User(data.get('username'), data.get('email'), data.get('password'))):
+    if not UserManager.add_user(User(username=data.get('username'), email=data.get('email'), password=data.get('password'))):
         return {
             'status' : 'error',
             'msg': 'Username already exists'
