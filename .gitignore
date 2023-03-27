@@ -20,6 +20,7 @@
 *.db-wal
 *.ipch
 *.pyc
+*.sqlite3
 
 Test/
 Debug/
