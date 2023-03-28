@@ -122,16 +122,18 @@ class Listener(BaseListener):
         for k, v in kwargs.items():
             self.options[k] = v
 
+        log(f"Used Ports: {used_ports}", LogLevel.DEBUG)
         ''' Checking if the port value is being updated: '''
         if 'port' in kwargs.keys():
             new_port = kwargs['port']
             if new_port in used_ports.keys():
-                ret_msg = f"Port {new_port} is already being used by {used_ports[new_port]}"
-                log(ret_msg, LogLevel.ERROR)
-                return {
-                    'status' : 'error',
-                    'message' : ret_msg
-                }
+                if used_ports[new_port] != "":
+                    ret_msg = f"Port {new_port} is already being used by {used_ports[new_port]}"
+                    log(ret_msg, LogLevel.ERROR)
+                    return {
+                        'status' : 'error',
+                        'message' : ret_msg
+                    }
             used_ports[new_port] = self.LID
             used_ports.pop(self.curr_port)
             self.curr_port = new_port

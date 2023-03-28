@@ -71,13 +71,13 @@ class Connection:
     def __dict__(self):
         return {
             self.UID : {
-                'UID' : self.UID,
-                'type' : self.type,
-                'OS' : self.OS,
-                'proc' : self.proc,
-                'pid' : self.pid,
-                'pwd' : self.pwd,
-                'user' : self.user
+                'UID'  : f'{self.UID}',
+                'type' : f'{self.type}',
+                'OS'   : f'{self.OS}',
+                'proc' : f'{self.proc}',
+                'pid'  : f'{self.pid}',
+                'pwd'  : f'{self.pwd}',
+                'user' : f'{self.user}'
             }
         }
 
