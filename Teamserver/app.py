@@ -204,7 +204,7 @@ def register():
     log(msg, LogLevel.INFO)
     return {'status': 'success', 'msg': msg}, 200
 
-@bp.route(f'/listeners')
+@bp.route(f'/listeners', methods=['GET'])
 @jwt_required()
 def listeners():
 
@@ -212,8 +212,30 @@ def listeners():
         return {
             "msg" : "You are not logged in",
             "status" : "error"
-        }, 401
+        }, 403
     return {"Listeners" : Raidware.get_listeners()}
+
+# Write a function that will return detail about a specific listener based on its name:
+@bp.route(f'/listeners/<name>', methods=['GET'])
+@jwt_required()
+def listener(name):
+    
+        if UserManager.get_user_by_username(get_jwt_identity()) == None:
+            return {
+                "msg" : "You are not logged in",
+                "status" : "error"
+            }, 403
+        data = Raidware.get_listeners()
+        for listener in data:
+            try:
+                if listener['name'] == name:
+                    return listener
+            except:
+                pass
+        return {
+            "msg" : "Invalid listener name specified",
+            "status" : "error"
+        }, 404
 
 @bp.route(f'/agents')
 @jwt_required()
@@ -386,37 +408,36 @@ def disable():
             return {
                 'status': 'error',
                 'msg': 'No data provided'
-            }, 500
+            }, 400
 
         ''' Checking if the fields are present '''
         if not data.get('LID'):
             return {
                 'status': 'error',
                 'msg': '"LID" field is missing'
-            }, 500
+            }, 400
 
         if data.get('LID'):
             if len(data) > 1:
                 return {
                     'status': 'error',
                     'msg': 'Only "LID" field is required'
-                }, 500
+                }, 400
 
         ''' Checking if the listener exists '''
-        log(f"LID: {data.get('LID')}")
         try:
             listener = [i for i in enabled_listeners if i.LID == data.get('LID')][0]
         except:
             return {
                 'status': 'error',
                 'msg': 'Invalid LID Specified. Listener doesn\'t exist'
-            }
+            }, 400
 
         if listener.status.lower().strip() == 'not running':
             return {
                 'status': 'error',
                 'msg': 'Listener is already stopped'
-            }
+            }, 400
 
         listener.status = 'Not Running'
         listener.onStop()
@@ -431,9 +452,10 @@ def disable():
             "message" : f'Error: {E}'
         }, 500
 
-@bp.route(f'/delete', methods=['POST'])
+@bp.route(f'/delete', methods=['POST', 'DELETE'])
 @jwt_required()
 def delete():
+    from utils.utils import enabled_listeners
     ''' This method will delete a listener '''
     try:
         content_type = request.headers.get('Content-Type')
@@ -446,7 +468,45 @@ def delete():
             return {
                 'status': 'error',
                 'msg': 'No data provided'
-            }, 500
+            }, 400
+        
+        ''' Checking if the fields are present '''
+        if not data.get('LID'):
+            return {
+                'status': 'error',
+                'msg': '"LID" field is missing'
+            }, 400
+        
+        if data.get('LID'):
+            if len(data) > 1:
+                return {
+                    'status': 'error',
+                    'msg': 'Only "LID" field is required'
+                }, 400
+            
+        ''' Checking if the listener exists '''
+        listener = [i for i in enabled_listeners if i.LID == data.get('LID')]
+        if not listener:
+            return {
+                'status': 'error',
+                'msg': 'Invalid LID Specified. Listener doesn\'t exist'
+            }, 400
+        listener = listener[0]
+
+        ''' Checking if it is running '''
+        if listener.status.lower().strip() == 'running':
+            return {
+                'status': 'error',
+                'msg': 'Listener is running. Please stop the listener before deleting it'
+            }, 400
+
+        ''' Remove the listener from the enabled_listeners list '''
+        enabled_listeners.remove(listener)
+        return {
+            'status': 'success',
+            'msg': 'Listener deleted successfully'
+        }
+    
     
     except Exception as E:
         return {
