@@ -517,7 +517,6 @@ def delete():
             'msg': 'Listener deleted successfully'
         }
     
-    
     except Exception as E:
         return {
             "status" : "error",
@@ -547,7 +546,7 @@ def enabled():
                 return {
                 'status': 'error',
                 'msg': '"LID" field cannot be empty'
-            }, 500
+            }, 400
 
 
         ''' Checking if there are any other fields except LID '''
@@ -561,7 +560,7 @@ def enabled():
                 return {
                     'status': 'error',
                     'msg': 'Invalid fields'
-                }, 500
+                }, 400
         ''' Checking if listener is in enabled listeners '''
         try:
             return {
@@ -571,13 +570,13 @@ def enabled():
             return {
                 'status': 'error',
                 'msg': 'Invalid LID Specified. Listener doesn\'t exist'
-            }, 500
+            }, 400
 
     except Exception as E:
         return {
             'status' : 'error',
             'msg' : f'Error: {E}'
-        }
+        }, 500
 
 @bp.route(f'/check')
 @jwt_required()
@@ -591,8 +590,9 @@ def check():
 def generate():
 
     return {
-        'status': 'success',
-    }
+        'status': 'error',
+        'msg'  : 'This feature is currently not available.'
+    }, 400
 
 @bp.route(f'/refresh', methods=['POST'])
 @jwt_required(refresh=True)
@@ -660,7 +660,7 @@ def interact():
         return {
             'status': 'error',
             'msg': 'No data provided'
-        }, 500
+        }, 400
 
     ## Checking if the fields are present: SID, mode, arg:
     valid = ['SID', 'mode', 'payload']
@@ -669,7 +669,7 @@ def interact():
             return {
                 'status': 'error',
                 'msg': f'"{i}" field is missing'
-            }, 500
+            }, 400
 
     ## Checking if an invalid field has been passed
     for k in data.keys():
@@ -677,14 +677,14 @@ def interact():
             return {
                 'status': 'error',
                 'msg': f'Invalid field "{k}"'
-            }, 500
+            }, 400
 
     ''' Checking if the session exists '''
     if data.get('SID') not in connections:
         return {
             'status': 'error',
             'msg': 'Invalid SID Specified. Session doesn\'t exist'
-        }, 500
+        }, 400
 
     ''' Getting the session '''
     session = connections[data.get('SID')]
@@ -731,7 +731,7 @@ def interact():
         return {
             'status': 'error',
             'msg': 'Invalid mode specified'
-        }, 500
+        }, 400
 
 def init(
     host : str,
