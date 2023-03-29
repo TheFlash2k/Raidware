@@ -493,6 +493,16 @@ def delete():
             }, 400
         listener = listener[0]
 
+        if data.get('force'):
+            if data.get('force').lower().strip() == 'true':
+                listener.status = 'Not Running'
+                listener.onStop()
+                enabled_listeners.remove(listener)
+                return {
+                    'status': 'success',
+                    'msg': 'Listener stopped forcefully and deleted successfully.'
+                }
+
         ''' Checking if it is running '''
         if listener.status.lower().strip() == 'running':
             return {
