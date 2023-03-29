@@ -38,10 +38,10 @@ def init():
 
     ''' Checking if the required utilites are installed '''
     log("Checking if required utilities are installed", LogLevel.DEBUG)
-    from utils.utils import check_utils
-    if not check_utils():
-        log("Required utilities are not installed", LogLevel.ERROR)
-        exit(1)
+    # from utils.utils import check_utils
+    # if not check_utils():
+    #     log("Required utilities are not installed", LogLevel.ERROR)
+    #     exit(1)
 
     log("Initialized Raidware", LogLevel.INFO)
 

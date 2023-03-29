@@ -53,10 +53,11 @@ if __name__ == "__main__":
             "type" : "non-staged",
             "config" : {
                 "host" : "0.0.0.0",
-                "port" : 9001
+                "port" : 9011
             }
         }
     }
     lid = prepare_listener(token=tokens['access_token'], listener=listener)['listener']['LID']
     print(f"Listener ID: {lid}")
-    # print(enable_listener(token=tokens['access_token'], listener=listener))
+    print(enable_listener(token=tokens['access_token'], listener=listener))
+    

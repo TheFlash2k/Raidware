@@ -26,7 +26,7 @@ CORS(app)
 
 bp = Blueprint('Raidware-Teamserver', __name__)
 
-app.config['JWT_TOKEN_LOCATION'] = ['headers']
+app.config['JWT_TOKEN_LOCATION'] = ['headers', 'cookies', 'json']
 app.config['JWT_BLACKLIST_TOKEN_CHECKS'] = ['access', 'refresh']
 app.config['PROPAGATE_EXCEPTIONS'] = True
 app.config['CORS_HEADERS'] = 'Content-Type'
@@ -49,14 +49,14 @@ def token_in_blacklist(jwt_headers, jwt_payload):
     jti = jwt_payload['jti']
     return jti in blacklist
 
-@bp.route(f'/auth', methods=['POST'])
+@bp.route(f'/login', methods=['POST'])
 @jwt_required(optional=True)
 def auth():
     if user_logged_in():
         return {
-            'status': 'error',
+            'status': 'warning',
             'msg': 'You are already logged in'
-        }, 403
+        }, 201
     
     try:
         content_type = request.headers.get('Content-Type')
@@ -68,30 +68,30 @@ def auth():
         return {
             "status" : "error",
             "msg" : "Invalid request"
-        }, 500
+        }, 400
 
     if not data.get('username'):
         return {
             'status': "error",
             'msg': 'username field is missing'
-        }, 401
+        }, 400
     if not data.get('password'):
         return {
             'status': "error",
             'msg': 'password field is missing'
-        }, 401
+        }, 400
     if not data.get('team_password'):
         return {
             'status': "error",
             'msg': 'team_password field is missing'
-        }, 401
+        }, 400
 
     ''' Checking if the team password is correct '''
     if data.get('team_password') != Raidware.get_team_password():
         return {
             'status': 'error',
             'msg': 'Incorrect team password'
-        }, 403
+        }, 400
     
     ''' Checking if the user exists '''
     user = get_user(data.get('username'))
@@ -99,7 +99,7 @@ def auth():
         return {
             'status': 'error',
             'msg': 'Invalid credentials'
-        }, 401
+        }, 400
 
     ''' Checking if the password is correct '''
 
@@ -108,58 +108,31 @@ def auth():
         return {
             'status': 'error',
             'msg': 'Invalid credentials'
-        }, 403
+        }, 400
 
     ''' Generating a token for the user '''
     access_token = create_access_token(identity=user['username'])
     refresh_token = create_refresh_token(identity=user['username'])
-    return {
+    res = jsonify(
+        {
         'status': 'success',
+        'msg' : 'Logged in successfully',
         'access_token': access_token,
         'refresh_token': refresh_token
-    }, 200
-
-@bp.route(f'/login', methods=['POST'])
-@jwt_required(optional=True)
-def login():
-    ''' Redirect to /auth '''
-    return auth()
-
-@bp.route(f'/listeners')
-@jwt_required()
-def listeners():
-    if token_in_blacklist(get_jwt()):
-        return {
-            'status': 'error',
-            'msg': 'You are not logged in'
-        }, 403
-    
-    if UserManager.get_user_by_username(get_jwt_identity()) == None:
-        return {
-            "msg" : "Invalid credentials",
-            "status" : "error"
-        }, 500
-    return {"Listeners" : Raidware.get_listeners()}
-
-@bp.route(f'/agents')
-@jwt_required()
-def agents():
-
-    if UserManager.get_user_by_username(get_jwt_identity()) == None:
-        return {
-            "msg" : "Invalid credentials",
-            "status" : "error"
-        }, 500
-    return Raidware.get_agents()
+        }
+    )
+    res.status_code = 200
+    res.set_cookie('access_token_cookie', access_token, httponly=True, secure=True)
+    return res
 
 @bp.route(f'/register', methods=['POST'])
 @jwt_required(optional=True)
 def register():
     if user_logged_in():
         return {
-            'status': 'error',
+            'status': 'warning',
             'msg': 'You are already logged in'
-        }, 403
+        }, 201
     try:
         content_type = request.headers.get('Content-Type')
         if (content_type == 'application/json'):
@@ -168,8 +141,9 @@ def register():
             data = request.form.to_dict()
     except:
         return {
-            "ERROR" : "Invalid request"
-        }, 500
+            "msg" : "Invalid request",
+            'status' : 'error'
+        }, 400
 
     ''' Checking if the fields are present
         - username
@@ -182,53 +156,75 @@ def register():
         return {
             'status' : 'error',
             'msg': 'username field is missing'
-        }
+        }, 400
     if not data.get('email'):
         return {
             'status' : 'error',
             'msg': 'email field is missing'
-        }
+        }, 400
     if not data.get('password'):
         return {
             'status' : 'error',
             'msg': 'password field is missing'
-        }
+        }, 400
     if not data.get('confirm_password'):
         return {
             'status' : 'error',
             'msg': 'confirm_password field is missing'
-        }
+        }, 400
 
     if not data.get('team_password'):
         return {
             'status' : 'error',
             'msg': 'team_password field is missing'
-        }
+        }, 400
 
     ''' Checking if the provided team password is valid '''
     if data.get('team_password') != Raidware.get_team_password():
         return {
             'status' : 'error',
             'msg': 'Invalid team password'
-        }
+        }, 400
 
     ''' Checking if the passwords match '''
     if data.get('password') != data.get('confirm_password'):
         return {
             'status' : 'error',
             'msg': 'Passwords do not match'
-        }
+        }, 400
 
     ''' Adding the user to the database and checking if it exists '''
     if not UserManager.add_user(User(username=data.get('username'), email=data.get('email'), password=data.get('password'))):
         return {
             'status' : 'error',
             'msg': 'Username already exists'
-        }
+        }, 400
 
     msg = f'User {data.get("username")} added to database statusfully'
     log(msg, LogLevel.INFO)
-    return {'status': 'success', 'msg': msg}
+    return {'status': 'success', 'msg': msg}, 200
+
+@bp.route(f'/listeners')
+@jwt_required()
+def listeners():
+
+    if UserManager.get_user_by_username(get_jwt_identity()) == None:
+        return {
+            "msg" : "You are not logged in",
+            "status" : "error"
+        }, 401
+    return {"Listeners" : Raidware.get_listeners()}
+
+@bp.route(f'/agents')
+@jwt_required()
+def agents():
+
+    if UserManager.get_user_by_username(get_jwt_identity()) == None:
+        return {
+            "msg" : "You are not logged in",
+            "status" : "error"
+        }, 401
+    return Raidware.get_agents()
 
 @bp.route(f'/prepare', methods=['POST'])
 @jwt_required()
@@ -280,7 +276,7 @@ def prepare_listener():
             "Details" : f'Invalid Request. Error: {E}'
         }, 500
 
-@bp.route(f'/update', methods=['POST'])
+@bp.route(f'/update', methods=['PUT'])
 @jwt_required()
 def update():
     ''' This method will update a listener '''
@@ -458,7 +454,6 @@ def delete():
             "message" : f'Error: {E}'
         }, 500
 
-
 @bp.route(f'/enabled', methods=['GET'])
 @jwt_required()
 def enabled():
@@ -519,12 +514,15 @@ def enabled():
 def check():
     ''' This will check if any new connections have been received on the listeners. '''
     from .listeners import connections
-    # d = json.dumps()
-    # log(f"Connections: {d}", LogLevel.DEBUG)
-    # return {
-    #     "connections" : json.loads(d)
-    # }
     return { "Connections" : [i.__dict__() for i in connections.values()]}
+
+@bp.route('/generate')
+@jwt_required()
+def generate():
+
+    return {
+        'status': 'success',
+    }
 
 @bp.route(f'/refresh', methods=['POST'])
 @jwt_required(refresh=True)
