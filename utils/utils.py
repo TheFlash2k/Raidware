@@ -1,5 +1,6 @@
 import json
 import ctypes
+from .logger import log
 
 def terminate_thread(thread):
     try:
@@ -91,11 +92,14 @@ def validate_listener(listener : dict, _type : type, field : str, str_type : str
     return ret
 
 def validate_sub_fields(data, listener):
+
     base_keys = list(data['config'].keys())
     passed_keys = list(listener['config'].keys())
     
-    print(f"Base Keys: {base_keys}")
-    print(f"Pass Keys: {passed_keys}")
+
+    log(f"Raw Data: {data}")
+    log(f"Base Keys: {base_keys}")
+    log(f"Pass Keys: {passed_keys}")
 
     ''' Verifying if the fields match '''
     for item in list(passed_keys):
@@ -123,6 +127,7 @@ def validate_sub_fields(data, listener):
 
     ''' Checking if port is in passed_keys and if the port specified is in used_ports '''
     if 'port' in passed_keys:
+        log("Port is in passed_keys")
         port = listener['config']['port']
         if type(port) != int:
             return {

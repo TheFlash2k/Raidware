@@ -70,14 +70,14 @@ def prepare_listener(listener : dict):
             "message" : "Listener doesn't exist"
         }
 
-    print("Validating....")
+    log("Validating....")
 
     ''' Validate the field NAME '''
     ret = validate_listener(listener=listener, _type=str, field='name', str_type="string")
     if type(ret) == dict:
         try:
             if ret['status'] == 'error':
-                return ret
+                return ret, 400
         except:
             pass
     
@@ -88,24 +88,30 @@ def prepare_listener(listener : dict):
     if type(ret) == dict:
         try:
             if ret['status'] == 'error':
-                return ret
+                return ret, 400
         except:
             pass
 
     listener_type = ret.lower().replace('-', '_')
 
-    if listener_type != "staged" and listener_type != "non_staged":
+    listener_types = [
+        "staged",
+        "non_staged",
+        "addons"
+    ]
+
+    if listener_type not in listener_types:
         return {
             'status' : 'error',
-            'message' : "Field 'type' must be either 'staged' or 'non_staged'"
-        }
+            'message' : f"Field 'type' must be one of these: {listener_types}"
+        }, 400
 
     ''' Validating the field Config '''
     ret = validate_listener(listener=listener, _type=dict, field='config', str_type="Dictionary")
     if type(ret) == dict:
         try:
             if ret['status'] == 'error':
-                return ret
+                return ret, 400
         except:
             pass
 
@@ -123,16 +129,16 @@ def prepare_listener(listener : dict):
             return {
                 'status' : 'error',
                 'message' : "Listener doesn't exist"
-            }
+            }, 404
 
         data = data[index]
     except:
         return {
             'status' : 'error',
             'message' : "Listener doesn't exist"
-        }
+        }, 404
 
-    print("Validating sub fields")
+    log("Validating sub fields")
     _vsf = validate_sub_fields(data=data, listener=listener)
     if type(_vsf) == dict:
         if _vsf['status'] == 'error':
@@ -143,7 +149,7 @@ def prepare_listener(listener : dict):
     from importlib import import_module
     listener_module = import_module(module)
 
-    print(listener_module)
+    log(f"Imported Module: {listener_module}")
     try:
         obj = listener_module.Listener()
     except Exception as E:
@@ -171,7 +177,7 @@ def update_listener(listener : dict):
     if type(ret) == dict:
         try:
             if ret['status'] == 'error':
-                return ret
+                return ret, 400
         except:
             pass
 
@@ -180,7 +186,7 @@ def update_listener(listener : dict):
     if type(ret) == dict:
         try:
             if ret['status'] == 'error':
-                return ret
+                return ret, 400
         except:
             pass
 
@@ -191,20 +197,20 @@ def update_listener(listener : dict):
         return {
             'status': 'error',
             'message': 'Invalid LID Specified. Listener doesn\'t exist'
-        }
+        }, 404
 
     ''' Updating the listener '''
     if not listener:
         return {
             'status': 'error',
             'message': 'Failed to update listener'
-        }
+        }, 400
 
     if listener.status.lower().strip() == 'running':
         return {
             'status': 'error',
             'message': 'Listener is already running. Cannot Update it.'
-        }
+        }, 400
 
     listener_config = ret
     old_config = listener.options
@@ -223,7 +229,7 @@ def update_listener(listener : dict):
         return {
             'status': 'warning',
             'message': 'No changes were made to the listener'
-        }
+        }, 201
 
     _pop = []
     for k in listener_config.keys():
@@ -233,11 +239,32 @@ def update_listener(listener : dict):
     for k in _pop:
         listener_config.pop(k)
 
+    if listener_config == {} or listener_config == old_config:
+        return {
+            'status': 'warning',
+            'message': 'No changes were made to the listener'
+        }, 201
+    
+    ''' Check if the port key exists and is a valid port '''
+    if 'port' in listener_config.keys():
+        if type(listener_config['port']) != int:
+            return {
+                'status': 'error',
+                'message': 'Port must be an integer'
+            }, 400
+
+        if listener_config['port'] < 1 or listener_config['port'] > 65535:
+            return {
+                'status': 'error',
+                'message': 'Port must be between 1 and 65535'
+            }, 400
+
+    log(f"Listener Config: {listener_config}")
     ''' Updating the listener with the configuration variables provided '''
     out = listener.setopts(**listener_config)
 
     if out['status'] == 'error':
-        return out
+        return out, 400
 
     return {
         'status' : 'success',

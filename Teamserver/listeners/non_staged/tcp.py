@@ -106,15 +106,13 @@ class Listener(BaseListener):
         }
 
     def setopts(self, **kwargs):
-
-        log("Inside the setops function of TCP listener", LogLevel.INFO)
-
+        
         ''' Check if all the keys in kwargs match the keys in self.options '''
         for item in kwargs.keys():
             if item not in self.options.keys():
                 return {
                     'status' : 'error',
-                    'message' : f'Invalid key "{item}" provided'
+                    'msg' : f'Invalid key "{item}" provided'
                 }
 
 
@@ -122,7 +120,6 @@ class Listener(BaseListener):
         for k, v in kwargs.items():
             self.options[k] = v
 
-        log(f"Used Ports: {used_ports}", LogLevel.DEBUG)
         ''' Checking if the port value is being updated: '''
         if 'port' in kwargs.keys():
             new_port = kwargs['port']
@@ -132,15 +129,16 @@ class Listener(BaseListener):
                     log(ret_msg, LogLevel.ERROR)
                     return {
                         'status' : 'error',
-                        'message' : ret_msg
+                        'msg' : ret_msg
                     }
-            used_ports[new_port] = self.LID
-            used_ports.pop(self.curr_port)
-            self.curr_port = new_port
+                else:
+                    used_ports[new_port] = self.LID
+                    used_ports.pop(self.curr_port)
+                    self.curr_port = new_port
 
         return {
             'status' : 'success',
-            'message' : "Updated the values."
+            'msg' : "Updated the values."
         }
 
     def onSend(self, msg : str, **kwargs):
