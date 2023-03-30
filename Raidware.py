@@ -1,6 +1,13 @@
 import argparse
 
-parser = argparse.ArgumentParser(prog="Raidware", description='Raidware - A C2 Framework.')
+banner = "Raidware - A C2 Framework."
+def version():
+    with open('version.conf', 'r') as f:
+        version = f.read()
+    return f"{banner.split()[0]} v{version.split()[0]}"
+
+parser = argparse.ArgumentParser(prog="Raidware", description=banner)
+parser.add_argument('-v', '--version', help='Print the version of Raidware.', dest='version', action='version', version=version())
 subparsers = parser.add_subparsers(required=True, dest='mode')
 
 server_parser = subparsers.add_parser('server', help='Start the Raidware Teamserver.')
@@ -18,6 +25,10 @@ cli_parser.add_argument('-P', '--password', help='Specify the password you speci
 cli_parser.add_argument('-T', '--team-password', help="Specify the team's password that was given to you when you ran Raidware.", required=True, type=str)
 
 args = parser.parse_args()
+
+if args.version:
+    print(version())
+    exit(0)
 
 if args.mode == 'cli':
     from cli import init
