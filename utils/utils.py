@@ -80,13 +80,13 @@ def validate_listener(listener : dict, _type : type, field : str, str_type : str
     except:
         return {
             'status' : 'error',
-            'message' : f"Field '{field}' not specified"
+            'msg' : f"Field '{field}' not specified"
         }
 
     if type(ret) != _type:
         return {
             'status' : 'error',
-            'message' : f"Field '{field}' must be of type {_type}"
+            'msg' : f"Field '{field}' must be of type {_type}"
         }
     
     return ret
@@ -106,7 +106,7 @@ def validate_sub_fields(data, listener):
         if item not in base_keys:
             return {
                 'status' : 'error',
-                'message' : f'Invalid key "{item}" provided in the CONFIG field.'
+                'msg' : f'Invalid key "{item}" provided in the CONFIG field.'
             }
 
     ''' Verifying if the fields are empty '''
@@ -114,7 +114,7 @@ def validate_sub_fields(data, listener):
         if not listener['config'][item]:
             return {
                 'status' : 'error',
-                'message' : f'Field "{item}" cannot be empty'
+                'msg' : f'Field "{item}" cannot be empty'
             }
 
     ''' Verifying if the fields are of the correct type '''
@@ -122,7 +122,7 @@ def validate_sub_fields(data, listener):
         if type(listener['config'][item]) != type(data['config'][item]):
             return {
                 'status' : 'error',
-                'message' : f'Field "{item}" must be of type {type(data["config"][item])}'
+                'msg' : f'Field "{item}" must be of type {type(data["config"][item])}'
             }
 
     ''' Checking if port is in passed_keys and if the port specified is in used_ports '''
@@ -132,13 +132,13 @@ def validate_sub_fields(data, listener):
         if type(port) != int:
             return {
                 'status' : 'error',
-                'message' : "Field 'port' must be an integer"
+                'msg' : "Field 'port' must be an integer"
             }
 
         if port <= 1 or port > 65535:
             return {
                 'status' : 'error',
-                'message' : "Field 'port' must be between 1 and 65535"
+                'msg' : "Field 'port' must be between 1 and 65535"
             }
 
         if port in used_ports.keys():
@@ -147,12 +147,12 @@ def validate_sub_fields(data, listener):
                 used_ports.pop(port)
                 return {
                     'status' : 'error',
-                    'message' : "An error had occurred. Please retry."
+                    'msg' : "An error had occurred. Please retry."
                 }
             
             return {
                 'status' : 'error',
-                'message' : f"Port '{port}' is already in use by the Listener {_.LID}({_.name})"
+                'msg' : f"Port '{port}' is already in use by the Listener {_.LID}({_.name})"
             }
 
         # used_ports[port] = _.LID

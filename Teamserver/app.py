@@ -103,8 +103,11 @@ def auth():
 
     ''' Checking if the password is correct '''
 
-    log_info(f"User: {user}")
+    ip = request.remote_addr
     if user['password'] != SHA512(data.get('password')):
+        # Get the IP address of the user
+        # Log the invalid login attempt
+        log_auth(f'User {data.get("username")} tried to login with invalid credentials from {ip}')
         return {
             'status': 'error',
             'msg': 'Invalid credentials'
@@ -113,6 +116,7 @@ def auth():
     ''' Generating a token for the user '''
     access_token = create_access_token(identity=user['username'])
     refresh_token = create_refresh_token(identity=user['username'])
+    log_auth(f'User {user["username"]} logged in successfully from {ip}')
     res = jsonify(
         {
         'status': 'success',
@@ -264,14 +268,14 @@ def prepare_listener():
             return {
                 'status': 'error',
                 'msg': 'No data provided'
-            }, 500
+            }, 400
 
         ''' Checking if the fields are present '''
         if not data.get('listener'):
             return {
                 'status': 'error',
                 'msg': '"listener" field is missing'
-            }, 500
+            }, 400
 
 
         ''' Checking if the listener exists '''
@@ -279,7 +283,7 @@ def prepare_listener():
             return {
                 'status': 'error',
                 'msg': 'Listener does not exist'
-            }, 500
+            }, 400
 
         ''' Preparing the listener '''
         listener = Raidware.prepare_listener(data.get('listener'))
@@ -288,15 +292,15 @@ def prepare_listener():
             return {
                 'status': 'error',
                 'msg': 'Failed to prepare listener'
-            }, 500
+            }, 400
 
         return listener
 
     except Exception as E:
         return {
             "status" : "error",
-            "Details" : f'Invalid Request. Error: {E}'
-        }, 500
+            "msg" : f'Invalid Request. Error: {E}'
+        }, 400
 
 @bp.route(f'/update', methods=['PUT'])
 @jwt_required()
@@ -325,7 +329,7 @@ def update():
     except Exception as E:
         return {
             "status" : "error",
-            "message" : f'Error: {E}'
+            "msg" : f'Error: {E}'
         }, 500
 
 @bp.route(f'/enable', methods=['POST'])
@@ -391,7 +395,7 @@ def enable():
     except Exception as E:
         return {
             "status" : "error",
-            "message" : f'Error: {E}'
+            "msg" : f'Error: {E}'
         }, 500
 
 @bp.route(f'/disable', methods=['POST'])
@@ -449,7 +453,7 @@ def disable():
     except Exception as E:
         return {
             "status" : "error",
-            "message" : f'Error: {E}'
+            "msg" : f'Error: {E}'
         }, 500
 
 @bp.route(f'/delete', methods=['POST', 'DELETE'])
@@ -520,7 +524,7 @@ def delete():
     except Exception as E:
         return {
             "status" : "error",
-            "message" : f'Error: {E}'
+            "msg" : f'Error: {E}'
         }, 500
 
 @bp.route(f'/enabled', methods=['GET'])
@@ -610,7 +614,7 @@ def logout():
     jti = get_jwt()['jti']
     log(f"Logged out {name}", LogLevel.INFO)
     blacklist.add(jti)
-    res = jsonify(status='success', message=f'Successfully logged out {name}')
+    res = jsonify(status='success', msg=f'Successfully logged out {name}')
     res.set_cookie('access_token', '')
     return res
 
@@ -626,7 +630,7 @@ def logout_refresh():
         }, 401
     log(f"Logged out {name}", LogLevel.INFO)
     blacklist.add(jti)
-    res = jsonify(status='success', message=f'Successfully logged out {name}')
+    res = jsonify(status='success', msg=f'Successfully logged out {name}')
     res.set_cookie('refresh_token', '')
     return res
 

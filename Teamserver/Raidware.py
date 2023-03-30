@@ -67,7 +67,7 @@ def prepare_listener(listener : dict):
     if not check_listener(listener):
         return {
             "status" : "error",
-            "message" : "Listener doesn't exist"
+            "msg" : "Listener doesn't exist"
         }
 
     log("Validating....")
@@ -103,7 +103,7 @@ def prepare_listener(listener : dict):
     if listener_type not in listener_types:
         return {
             'status' : 'error',
-            'message' : f"Field 'type' must be one of these: {listener_types}"
+            'msg' : f"Field 'type' must be one of these: {listener_types}"
         }, 400
 
     ''' Validating the field Config '''
@@ -128,14 +128,14 @@ def prepare_listener(listener : dict):
         if index == -1:
             return {
                 'status' : 'error',
-                'message' : "Listener doesn't exist"
+                'msg' : "Listener doesn't exist"
             }, 404
 
         data = data[index]
     except:
         return {
             'status' : 'error',
-            'message' : "Listener doesn't exist"
+            'msg' : "Listener doesn't exist"
         }, 404
 
     log("Validating sub fields")
@@ -167,7 +167,7 @@ def prepare_listener(listener : dict):
 
     return {
         'status' : 'success',
-        'message' : 'Listener prepared successfully',
+        'msg' : 'Listener prepared successfully',
         'listener' : obj.__dict__()
     }
 
@@ -196,20 +196,20 @@ def update_listener(listener : dict):
     except:
         return {
             'status': 'error',
-            'message': 'Invalid LID Specified. Listener doesn\'t exist'
+            'msg': 'Invalid LID Specified. Listener doesn\'t exist'
         }, 404
 
     ''' Updating the listener '''
     if not listener:
         return {
             'status': 'error',
-            'message': 'Failed to update listener'
+            'msg': 'Failed to update listener'
         }, 400
 
     if listener.status.lower().strip() == 'running':
         return {
             'status': 'error',
-            'message': 'Listener is already running. Cannot Update it.'
+            'msg': 'Listener is already running. Cannot Update it.'
         }, 400
 
     listener_config = ret
@@ -228,7 +228,7 @@ def update_listener(listener : dict):
     if old_diff == {}:
         return {
             'status': 'warning',
-            'message': 'No changes were made to the listener'
+            'msg': 'No changes were made to the listener'
         }, 201
 
     _pop = []
@@ -242,7 +242,7 @@ def update_listener(listener : dict):
     if listener_config == {} or listener_config == old_config:
         return {
             'status': 'warning',
-            'message': 'No changes were made to the listener'
+            'msg': 'No changes were made to the listener'
         }, 201
     
     ''' Check if the port key exists and is a valid port '''
@@ -250,13 +250,13 @@ def update_listener(listener : dict):
         if type(listener_config['port']) != int:
             return {
                 'status': 'error',
-                'message': 'Port must be an integer'
+                'msg': 'Port must be an integer'
             }, 400
 
         if listener_config['port'] < 1 or listener_config['port'] > 65535:
             return {
                 'status': 'error',
-                'message': 'Port must be between 1 and 65535'
+                'msg': 'Port must be between 1 and 65535'
             }, 400
 
     log(f"Listener Config: {listener_config}")
@@ -268,7 +268,7 @@ def update_listener(listener : dict):
 
     return {
         'status' : 'success',
-        'message' : 'Listener updated successfully',
+        'msg' : 'Listener updated successfully',
         'from' : old_diff,
         'to' : listener_config
     }

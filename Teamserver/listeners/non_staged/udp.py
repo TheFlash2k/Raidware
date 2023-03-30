@@ -33,7 +33,7 @@ class Listener(BaseListener):
             if item not in self.options.keys():
                 return {
                     'status' : 'error',
-                    'message' : f'Invalid key "{item}" provided'
+                    'msg' : f'Invalid key "{item}" provided'
                 }
 
         ''' Setting the values '''
@@ -42,5 +42,5 @@ class Listener(BaseListener):
 
         return {
             'status' : 'success',
-            'message' : "Updated the values."
+            'msg' : "Updated the values."
         }
