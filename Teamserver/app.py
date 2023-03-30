@@ -696,6 +696,10 @@ def interact():
         ''' Sending the command to the session '''
         session.send(f'{data["mode"]}:{data["payload"]}')
         ret = session.recv()
+        
+        if data["payload"][:2].lower() == "cd":
+            session.pwd = ret
+
         return {
             'status': 'success',
             'msg': ret
