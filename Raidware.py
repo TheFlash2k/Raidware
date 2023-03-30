@@ -26,10 +26,6 @@ cli_parser.add_argument('-T', '--team-password', help="Specify the team's passwo
 
 args = parser.parse_args()
 
-if args.version:
-    print(version())
-    exit(0)
-
 if args.mode == 'cli':
     from cli import init
     init(host=args.host, port=args.port, username=args.username, password=args.password, team_password=args.team_password)
