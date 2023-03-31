@@ -317,12 +317,12 @@ def update():
             return {
                 'status': 'error',
                 'msg': 'No data provided'
-            }, 500
+            }, 400
 
         _ = Raidware.update_listener(data)
         if type(_) == dict:
             if _['status'] == 'error':
-                return _, 500
+                return _, 400
 
         return _
 
@@ -330,7 +330,7 @@ def update():
         return {
             "status" : "error",
             "msg" : f'Error: {E}'
-        }, 500
+        }, 400
 
 @bp.route(f'/enable', methods=['POST'])
 @jwt_required()
@@ -346,21 +346,21 @@ def enable():
             return {
                 'status': 'error',
                 'msg': 'No data provided'
-            }, 500
+            }, 400
 
         ''' Checking if the fields are present '''
         if not data.get('LID'):
             return {
                 'status': 'error',
                 'msg': '"LID" field is missing'
-            }, 500
+            }, 400
 
         if data.get('LID'):
             if len(data) > 1:
                 return {
                     'status': 'error',
                     'msg': 'Only "LID" field is required'
-                }, 500
+                }, 400
 
         ''' Checking if the listener exists '''
         log(f"LID: {data.get('LID')}")
@@ -370,20 +370,20 @@ def enable():
             return {
                 'status': 'error',
                 'msg': 'Invalid LID Specified. Listener doesn\'t exist'
-            }
+            }, 404
 
         ''' Updating the listener '''
         if not listener:
             return {
                 'status': 'error',
                 'msg': 'Failed to update listener'
-            }
+            }, 400
 
         if listener.status.lower().strip() == 'running':
             return {
                 'status': 'error',
                 'msg': 'Listener is already running'
-            }
+            }, 400
 
         listener.status = 'Running'
         listener.onLoad()
@@ -396,7 +396,7 @@ def enable():
         return {
             "status" : "error",
             "msg" : f'Error: {E}'
-        }, 500
+        }, 400
 
 @bp.route(f'/disable', methods=['POST'])
 @jwt_required()
@@ -435,7 +435,7 @@ def disable():
             return {
                 'status': 'error',
                 'msg': 'Invalid LID Specified. Listener doesn\'t exist'
-            }, 400
+            }, 404
 
         if listener.status.lower().strip() == 'not running':
             return {
@@ -454,9 +454,9 @@ def disable():
         return {
             "status" : "error",
             "msg" : f'Error: {E}'
-        }, 500
+        }, 400
 
-@bp.route(f'/delete', methods=['POST', 'DELETE'])
+@bp.route(f'/delete', methods=['DELETE'])
 @jwt_required()
 def delete():
     from utils.utils import enabled_listeners
@@ -494,7 +494,7 @@ def delete():
             return {
                 'status': 'error',
                 'msg': 'Invalid LID Specified. Listener doesn\'t exist'
-            }, 400
+            }, 404
         listener = listener[0]
 
         if data.get('force'):
@@ -525,7 +525,7 @@ def delete():
         return {
             "status" : "error",
             "msg" : f'Error: {E}'
-        }, 500
+        }, 400
 
 @bp.route(f'/enabled', methods=['GET'])
 @jwt_required()
@@ -574,19 +574,41 @@ def enabled():
             return {
                 'status': 'error',
                 'msg': 'Invalid LID Specified. Listener doesn\'t exist'
-            }, 400
+            }, 404
 
     except Exception as E:
         return {
             'status' : 'error',
             'msg' : f'Error: {E}'
-        }, 500
+        }, 400
 
 @bp.route(f'/check')
 @jwt_required()
 def check():
     ''' This will check if any new connections have been received on the listeners. '''
     from .listeners import connections
+    # Check if args contains LID
+    if request.args.get('LID'):
+        # Check if the LID is valid
+        try:
+            listener = [i for i in enabled_listeners if i.LID == request.args.get('LID')][0]
+        except:
+            return {
+                'status': 'error',
+                'msg': 'Invalid LID Specified. Listener doesn\'t exist'
+            }, 404
+        # Check if the listener has any new connections
+        if listener.new_connections:
+            return {
+                'status': 'success',
+                'msg': 'New connections found',
+                'connections': [i.__dict__() for i in listener.new_connections]
+            }
+        else:
+            return {
+                'status': 'success',
+                'msg': 'No new connections found'
+            }
     return { "Connections" : [i.__dict__() for i in connections.values()]}
 
 @bp.route('/generate')

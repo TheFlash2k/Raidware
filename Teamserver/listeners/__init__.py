@@ -92,6 +92,9 @@ class Connection:
 
     def recv(self):
         return self.listener.onRecv(socket=self.base)
+    
+    def get_lid(self):
+        return self.listener.lid
 
 connections = {}
 enabled_Listeners = {}
