@@ -49,6 +49,12 @@ def token_in_blacklist(jwt_headers, jwt_payload):
     jti = jwt_payload['jti']
     return jti in blacklist
 
+@bp.route('/version')
+def version():
+    with open('version.conf', 'r') as f:
+        version = f.read()
+    return f"v{version.split()[0]}"
+
 @bp.route(f'/login', methods=['POST'])
 @jwt_required(optional=True)
 def auth():
