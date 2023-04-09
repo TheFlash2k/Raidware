@@ -28,6 +28,8 @@ bp = Blueprint('Raidware-Teamserver', __name__)
 
 app.config['JWT_TOKEN_LOCATION'] = ['headers', 'cookies', 'json']
 app.config['JWT_BLACKLIST_TOKEN_CHECKS'] = ['access', 'refresh']
+# Set the JWT expire time to 1 day:
+app.config['JWT_ACCESS_TOKEN_EXPIRES'] = 86400
 app.config['PROPAGATE_EXCEPTIONS'] = True
 app.config['CORS_HEADERS'] = 'Content-Type'
 app.config['SECRET_KEY'] = get_config_variable('Raidware_Configuration.SECRET_KEY')

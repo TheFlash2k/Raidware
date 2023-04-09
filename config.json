@@ -15,7 +15,6 @@
             "config" : {
                 "host" : "0.0.0.0",
                 "port" : 9001,
-                "ssl" : false,
                 "begin-delimiter" : "|RAIDWARE-SoM|",
                 "end-delimiter" :  "|RAIDWARE-EoM|"
             },
