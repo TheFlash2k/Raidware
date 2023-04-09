@@ -170,7 +170,7 @@ def check_utils():
     log("Checking for required utilities...")
     for cmd in cmds:
         msg = f"Checking for '{cmd}' "
-        log(f"{msg}\r", end='')
+        log(f"{msg}\r", end='', to_file=False)
         if not shutil.which(cmd):
             log_error(f"Command '{cmd}' not found. Please install it and try again.")
             return False

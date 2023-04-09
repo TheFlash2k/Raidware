@@ -55,20 +55,31 @@
         }
     ],
     "Agents" : {
+        "Common" : {
+            "PAYLOAD_ENCRYPTION" : "AES",
+            "PAYLOAD_KEY" : "r@1dw@r3_k3y",
+            "begin-delimiter" : "|RAIDWARE-SoM|",
+            "end-delimiter" :  "|RAIDWARE-EoM|",
+            "tcp" : {
+                "LHOST" : "127.0.0.1",
+                "LPORT" : 9001
+            }
+        },
         "Linux" : [
             "tcp",
             "udp",
             "http"
         ],
 
-        "Windows" : [
-            "tcp",
-            "udp",
-            "http",
-            "https",
-            "DNS"
-        ],
-
+        "Windows" : {
+            "tcp" : {
+                "SSL" : false
+            },
+            "tls" : {
+                "CERT_ENCODING" : "HEX",
+                "CERT_FILE" : "Teamserver/certs/cert.pem"
+            }
+        },
         "MacOS" : [
             "tcp",
             "http"

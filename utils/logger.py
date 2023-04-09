@@ -77,8 +77,16 @@ def log(msg, level : LogLevel = LogLevel.DEBUG, *args, **kargs):
         os.mkdir(path)
     
     ''' Writing the logs to the file '''
-    with open(file, 'a') as f:
-        f.write(clean + '\n')
+    # check if argument to_file is set to False:
+
+    if not kargs.get('to_file', True):
+        with open(file, 'a') as f:
+            f.write(clean + '\n')
+        
+    else:
+        if kargs['to_file'] == True:
+            with open(file, 'a') as f:
+                f.write(clean + '\n')
 
     ''' Printing the logs to the console '''
     print(msg, file=_file, *args, **kargs)
