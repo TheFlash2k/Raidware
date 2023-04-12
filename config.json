@@ -5,12 +5,13 @@
         "DEBUG_LOG_FILE" : "logs/debug.log",
         "ERROR_LOG_FILE" : "logs/error.log",
         "AUTH_LOG_FILE" : "logs/auth.log",
+        "CONNECTIONS_LOG_FILE" : "logs/connections.log",
         "DEBUG" : true,
         "SECRET_KEY" : "r@1dw@r3_k3y"
     },
     "Listeners" : [
         {
-            "name" : "tcp",
+            "protocol" : "tcp",
             "description" : "TCP Listener",
             "config" : {
                 "host" : "0.0.0.0",
@@ -33,7 +34,7 @@
             }
         },
         {
-            "name" : "udp",
+            "protocol" : "udp",
             "description" : "UDP Listener",
             "config" : {
                 "host" : "0.0.0.0",

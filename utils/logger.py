@@ -39,6 +39,7 @@ class LogLevel:
     DEBUG = [ "*", "DEBUG", "[BLUE]" ]
     WARN =  [ "!", "WARN", "[YELLOW]" ]
     AUTH =  [ "#", "AUTH", "[MAGENTA]" ]
+    CONNECTIONS = [ ">", "CONNECTIONS", "[CYAN]" ]
 
 def log(msg, level : LogLevel = LogLevel.DEBUG, *args, **kargs):
 
@@ -46,7 +47,6 @@ def log(msg, level : LogLevel = LogLevel.DEBUG, *args, **kargs):
     clean = uncolorize(msg)
     msg = colorize(msg)
 
-    ''' Fetching the file from config '''
     file = f'config.json'
     import json
     with open(file, 'r') as f:
@@ -66,33 +66,29 @@ def log(msg, level : LogLevel = LogLevel.DEBUG, *args, **kargs):
 
     elif level == LogLevel.DEBUG:
         file = config['Raidware_Configuration']['DEBUG_LOG_FILE']
-
+    
+    elif level == LogLevel.CONNECTIONS:
+        file = config['Raidware_Configuration']['CONNECTIONS_LOG_FILE']
 
     _file = sys.stderr if level == LogLevel.ERROR else sys.stdout
 
-    ''' Creating the logs folder if the folder doesn't exist '''
     path = '/'.join(file.split('/')[:-1])
     import os
     if not os.path.exists(path):
         os.mkdir(path)
     
-    ''' Writing the logs to the file '''
-    # check if argument to_file is set to False:
+    if kargs.get('to_file', True) == False:
+        kargs.pop('to_file')
+        print(msg, file=_file, *args, **kargs)
+        return
 
-    if not kargs.get('to_file', True):
-        with open(file, 'a') as f:
-            f.write(clean + '\n')
-        
-    else:
-        if kargs['to_file'] == True:
-            with open(file, 'a') as f:
-                f.write(clean + '\n')
+    with open(file, 'a') as f:
+        f.write(clean + '\n')
 
-    ''' Printing the logs to the console '''
     print(msg, file=_file, *args, **kargs)
 
 def log_error(msg, *args, **kargs):
-    print(f"[{Fore.RED}-{Fore.RESET}] {colorize(msg)}", file=sys.stderr, *args, **kargs)
+    log(msg, LogLevel.ERROR, *args, **kargs)
 
 def log_auth(msg, *args, **kargs):
     log(f"{colorize(msg)}", level= LogLevel.AUTH, *args, **kargs)

@@ -54,8 +54,9 @@ class BaseListener:
 
 
 class Connection:
-    def __init__(self, UID : str, listener = None, _type = None, base = None, OS=None, proc = None, pid = None, pwd = None, user = None):
+    def __init__(self, UID : str, name : str = "", listener = None, _type = None, base = None, OS=None, proc = None, pid = None, pwd = None, user = None):
         self.UID = UID
+        self.name = listener.name if (name == "" or name == None) else name
         self.listener = listener
         self.type = _type
         self.base = base
@@ -71,6 +72,8 @@ class Connection:
     def __dict__(self):
         return {
             self.UID : {
+                'Listener-Name' : f'{self.name}',
+                'Protocol' : f'{self.listener.name}',
                 'UID'  : f'{self.UID}',
                 'type' : f'{self.type}',
                 'OS'   : f'{self.OS}',

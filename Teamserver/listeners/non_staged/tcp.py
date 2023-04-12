@@ -21,30 +21,30 @@ class Listener(BaseListener):
     bind = 0
 
     def __init__(self, **kwargs):
+
+        # check if 'name' is in kwargs
+        self.listener_name = kwargs['name'] if 'name' in kwargs.keys() else self.name
         log("Initializing TCP listener", LogLevel.INFO)
         self.options = get_default_config_vars(name=self.name)
 
         ''' Checking if the port is already being used: '''
         self.curr_port = self.options['port']
-        log(f"Current Port: {self.curr_port}")
         if self.curr_port in used_ports.keys():
             ret_msg = f"Port {self.curr_port} is already being used by {used_ports[self.curr_port]}"
             log(ret_msg, LogLevel.ERROR)
             raise Exception(ret_msg)
-        
+
         used_ports[self.curr_port] = self.LID
 
     def __listen__(self):
     
         def __verify__(conn : socket):
             print()
-            log_info("A connection has been received. Verifying the connection...")
+            log("A connection has been received. Verifying the connection...")
             uid = get_random_string()
             self.onSend(uid, socket=conn)
             recv = self.onRecv(socket=conn).split('|')
-            log_info(f"Received data: {recv}")
             try:
-                # connections[ret[2]] = Connection(UID=ret[2], listener=self, _type=self.type, base=conn, OS=ret[1], proc = ret[3], pid = ret[4], pwd = ret[5], user = ret[6])
                 return (recv[0] == "RAIDWARE_INIT"), recv[1], uid, recv[2], recv[3], recv[4], recv[5]
             except:
                 return None
@@ -55,21 +55,28 @@ class Listener(BaseListener):
                 self.bind = 1
             except Exception as E:
                 log_error(f"Exception: {E}")
-                log_error("([GREEN]TCP[RESET]) Failed to bind to the specified address and port.")
+                log_error(f"([GREEN]{self.listener_name}[RESET]) Failed to bind to the specified address and port.")
                 self.sock = None
 
         if self.sock == None:
-            log_error("([GREEN]TCP[RESET]) An error had occurred when creating the socket for listener. Please check...")
+            log(f"([GREEN]{self.listener_name}[RESET]) An error had occurred when creating the socket for listener. Please check...", LogLevel.ERROR)
             return
 
         self.sock.listen()
-        log_info(f"([GREEN]TCP[RESET]) Listening on [CYAN]{self.options['host']}[RESET]:[CYAN]{self.options['port']}[RESET]")
+        log(f"([GREEN]{self.listener_name}[RESET]) Listening on [CYAN]{self.options['host']}[RESET]:[CYAN]{self.options['port']}[RESET]", LogLevel.INFO)
 
         while True:
             conn, addr = self.sock.accept()
 
             ''' Verifying the received connection... '''
-            ret = __verify__(conn)
+            try:
+                ret = __verify__(conn)
+            except:
+                try:
+                    ret = __verify__(conn)
+                except:
+                    log_error("Connection was received but we were unable to validate if it was our own.")
+                continue
 
             if not ret:
                 log_error("Connection was received but we were unable to validate if it was our own.")
@@ -79,13 +86,10 @@ class Listener(BaseListener):
                 log_error("Connection was received but we were unable to validate if it was our own.")
                 continue
 
-            log_info(f"([GREEN]TCP[RESET]) Received a connection from {addr[0]}:{addr[1]}")
-            print()
-            connections[ret[2]] = Connection(UID=ret[2], listener=self, _type=self.type, base=conn, OS=ret[1], proc = ret[3], pid = ret[4], pwd = ret[5], user = ret[6])
-
+            connections[ret[2]] = Connection(name=self.listener_name, UID=ret[2], listener=self, _type=self.type, base=conn, OS=ret[1], proc = ret[3], pid = ret[4], pwd = ret[5], user = ret[6])
+            log(f"([GREEN]{self.listener_name}[RESET]) Connection with UID [CYAN]{ret[2]}[RESET] has been established.", LogLevel.CONNECTIONS)
 
     def onLoad(self):
-        log(f"({self.name}) OnLoad function called.")
         try:
             self.thread = Thread(target=self.__listen__, daemon=True)
             self.thread.start()
@@ -93,14 +97,14 @@ class Listener(BaseListener):
             pass
 
     def onStop(self):
-        log(f"({self.name}) OnStop Function Called")
         terminate_thread(self.thread)
 
     def __dict__(self):
         return {
             'LID' : self.LID,
-            'name' : self.name,
-            'type' : self.type,
+            'name' : self.listener_name,
+            'protocol' : self.name,
+            'type' : f"{self.name}|{self.type}",
             'status' : self.status,
             'options' : self.options
         }
@@ -161,10 +165,8 @@ class Listener(BaseListener):
             return None
 
         try:
-            log(f"Received data: {buf}")
             buf = buf.split(self.options['begin-delimiter'])[1].split(self.options['end-delimiter'])[0][1:]
         except:
-            log_error(f"Received data: {buf}")
-            log_error("Unable to parse the received data. Returning the raw data...")
+            log_error(f"Unable to parse the received data ({buf}). Returning the raw data...")
             return buf
         return buf[:-1]

@@ -15,8 +15,6 @@ def terminate_thread(thread):
     if res == 0:
         raise ValueError("nonexistent thread id")
     elif res > 1:
-        # """if it returns a number greater than one, you're in trouble,
-        # and you should call it again with exc=NULL to revert the effect"""
         ctypes.pythonapi.PyThreadState_SetAsyncExc(thread.ident, None)
         raise SystemError("PyThreadState_SetAsyncExc failed")
 
@@ -31,12 +29,7 @@ def write_json(file_name : str, content : dict):
 
 def is_admin():
     import ctypes, os
-    try:
-        is_admin = os.getuid() == 0
-    except AttributeError:
-        is_admin = ctypes.windll.shell32.IsUserAnAdmin() != 0
-    return is_admin
-
+    return os.name == 'nt' and ctypes.windll.shell32.IsUserAnAdmin() != 0 or os.getuid() == 0
 
 ''' This method will generate a random string with length specified by the _len parameter '''
 def get_random_string(_len = 25):
@@ -58,7 +51,7 @@ def get_default_config_vars(name : str):
         ## Fetch the index from the list where the name matches
         index = -1
         for i in range(len(data['Listeners'])):
-            if data['Listeners'][i]['name'] == name.lower():
+            if data['Listeners'][i]['protocol'] == name.lower():
                 index = i
                 break
         if index == -1:
@@ -95,11 +88,6 @@ def validate_sub_fields(data, listener):
 
     base_keys = list(data['config'].keys())
     passed_keys = list(listener['config'].keys())
-    
-
-    log(f"Raw Data: {data}")
-    log(f"Base Keys: {base_keys}")
-    log(f"Pass Keys: {passed_keys}")
 
     ''' Verifying if the fields match '''
     for item in list(passed_keys):
@@ -127,7 +115,6 @@ def validate_sub_fields(data, listener):
 
     ''' Checking if port is in passed_keys and if the port specified is in used_ports '''
     if 'port' in passed_keys:
-        log("Port is in passed_keys")
         port = listener['config']['port']
         if type(port) != int:
             return {
@@ -169,8 +156,8 @@ def check_utils():
 
     log("Checking for required utilities...")
     for cmd in cmds:
-        msg = f"Checking for '{cmd}' "
-        log(f"{msg}\r", end='', to_file=False)
+        msg = f"Checking for '{cmd}'"
+        log(f"{msg}", to_file=False)
         if not shutil.which(cmd):
             log_error(f"Command '{cmd}' not found. Please install it and try again.")
             return False

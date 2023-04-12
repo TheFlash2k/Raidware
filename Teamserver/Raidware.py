@@ -18,12 +18,11 @@ def init():
     log("Initializing Raidware", LogLevel.INFO)
 
     log("Checking if we're admin", LogLevel.DEBUG)
-    # if not is_admin():
-    #     log("Raidware Teamserver must be run as admin", LogLevel.ERROR)
-    #     exit(1)
-    # else:
-    #     log("Admin check passed", LogLevel.DEBUG)
-
+    if not is_admin():
+        log("Raidware Teamserver must be run as admin", LogLevel.ERROR)
+        exit(1)
+    else:
+        log("Running as an administrator!", LogLevel.DEBUG)
 
     log("Checking if config file exists", LogLevel.DEBUG)
     if not os.path.exists("config.json"):
@@ -38,10 +37,10 @@ def init():
 
     ''' Checking if the required utilites are installed '''
     log("Checking if required utilities are installed", LogLevel.DEBUG)
-    # from utils.utils import check_utils
-    # if not check_utils():
-    #     log("Required utilities are not installed", LogLevel.ERROR)
-    #     exit(1)
+    from utils.utils import check_utils
+    if not check_utils():
+        log("Required utilities are not installed", LogLevel.ERROR)
+        exit(1)
 
     log("Initialized Raidware", LogLevel.INFO)
 
@@ -52,15 +51,16 @@ def get_agents():
     return json_fetch("config.json", "Agents")
 
 def check_listener(listener : dict):
+    field = 'protocol'
     try:
-        listener_name = listener['name']
+        listener_name = listener[field]
+        listeners = get_listeners()
+        for item in listeners:
+            if item[field] == listener_name.lower():
+                return True
+        return False
     except:
         return False
-    listeners = get_listeners()
-    for item in listeners:
-        if item['name'] == listener_name.lower():
-            return True
-    return False
 
 def prepare_listener(listener : dict):
 
@@ -70,10 +70,7 @@ def prepare_listener(listener : dict):
             "msg" : "Listener doesn't exist"
         }
 
-    log("Validating....")
-
-    ''' Validate the field NAME '''
-    ret = validate_listener(listener=listener, _type=str, field='name', str_type="string")
+    ret = validate_listener(listener=listener, _type=str, field='protocol', str_type="string")
     if type(ret) == dict:
         try:
             if ret['status'] == 'error':
@@ -121,7 +118,7 @@ def prepare_listener(listener : dict):
 
         index = -1
         for i in range(len(data)):
-            if data[i]['name'] == listener_name.lower():
+            if data[i]['protocol'] == listener_name.lower():
                 index = i
                 break
 
@@ -138,38 +135,52 @@ def prepare_listener(listener : dict):
             'msg' : "Listener doesn't exist"
         }, 404
 
-    log("Validating sub fields")
     _vsf = validate_sub_fields(data=data, listener=listener)
     if type(_vsf) == dict:
         if _vsf['status'] == 'error':
             return _vsf
+
+    name = data['protocol']
+    try:
+        if listener['name']:
+            name = listener['name']
+    except:
+        pass
+
+    for i in enabled_listeners:
+        if i.listener_name == name:
+            return {
+                'status' : 'error',
+                'msg' : f"Listener with name '{name}' already exists"
+            }, 400
 
     ''' Preparing the listener '''
     module = f"Teamserver.listeners.{listener_type}.{listener_name}"
     from importlib import import_module
     listener_module = import_module(module)
 
-    log(f"Imported Module: {listener_module}")
     try:
-        obj = listener_module.Listener()
+        obj = listener_module.Listener(name=name)
+        ''' Updating the listener with the configuration variables provided '''
+        out = obj.setopts(**listener_config)
+
+        ''' Checking if the listener is already running '''
+        if out['status'] == 'error':
+            return out
+
+        obj.LID = get_random_string()
+        enabled_listeners.append(obj)
+
+        return {
+            'status' : 'success',
+            'msg' : 'Listener prepared successfully',
+            'listener' : obj.__dict__()
+        }
     except Exception as E:
-        print(f"Error: {E}")
-
-    ''' Updating the listener with the configuration variables provided '''
-    out = obj.setopts(**listener_config)
-
-    ''' Checking if the listener is already running '''
-    if out['status'] == 'error':
-        return out
-
-    obj.LID = get_random_string()
-    enabled_listeners.append(obj)
-
-    return {
-        'status' : 'success',
-        'msg' : 'Listener prepared successfully',
-        'listener' : obj.__dict__()
-    }
+        return {
+            'status' : 'error',
+            'msg' : f'Error: {E.__repr__()}'
+        }, 400
 
 def update_listener(listener : dict):
     

