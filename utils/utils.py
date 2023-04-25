@@ -179,6 +179,7 @@ RAIDWARE = f"{Fore.RED}Raid{Fore.RESET}{Fore.WHITE}ware{Fore.RESET}"
 basic_prompt = f"({RAIDWARE})"
 prompt = ">>"
 prefix = "v1"
+cli_prompt = "[[BLUE]CLI[RESET]]"
 
 ''' Variables '''
 used_ports = {  }
