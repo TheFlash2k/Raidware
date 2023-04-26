@@ -2,6 +2,7 @@ from time import sleep
 from colorama import init, Fore, Back
 import requests
 import json
+import threading
 
 from utils.utils import *
 from utils.logger import *
@@ -17,14 +18,22 @@ sys.dont_write_bytecode = True
 def main():
     print(f"Welcome to {RAIDWARE}. Type 'help' for help. To exit, type 'exit' || (CTRL+Z+ENTER in WINDOWS or CTRL+D in UNIX)\n")
 
+    ThreadHandles.prompt_updater = threading.Thread(target=prompt_updater, daemon=True)
+    ThreadHandles.prompt_updater.start()
+
+    log("Fetching prompt...")
+    prompt_updater(_self=False)
+
     while True:
         _prompt = ""
         try:
             TabComplete(get_args_list())
-            # _prompt += f'[{colorize(f"[GREEN]{len(listeners.connections)}[RESET]")}]' if len(listeners.connections) > 0 else ""
-            # _prompt += f'[{colorize(f"[CYAN]{len(listeners.enabled_Listeners)}[RESET]")}]' if len(listeners.enabled_Listeners) > 0 else ""
-
-            _prompt += " " if _prompt  != "" else ""
+            lis_len = len(Globals.enabled_listeners)
+            ses_len = len(Globals.sessions)
+            listener_prompt = colorize( f"[GREEN]Listeners: [BLUE] {lis_len}[RESET]\n")
+            session_prompt  = colorize(f"[YELLOW]Sessions : [BLUE] {ses_len}[RESET]\n")
+            _prompt += listener_prompt# if lis_len else ""
+            _prompt += session_prompt# if ses_len else ""
             _prompt += f"{basic_prompt} {prompt} "
             parse_input(
                 _prompt
@@ -33,11 +42,11 @@ def main():
             print()
             continue
         except EOFError:
+            terminate_thread(ThreadHandles.prompt_updater)
             break
         except Exception as E:
             print(f"[{Fore.RED}-{Fore.RESET}] An Error Occurred: {E.__repr__()}")
 
-    # exit_valid()
 
 def is_teamserver_running(
     host : str,
@@ -57,17 +66,17 @@ def init(
     team_password : str
 ):
     log(f"Checking if the Teamserver is running...")
-    ts_ver = is_teamserver_running(host = host, port = port)
-    if not ts_ver:
+    Globals.ts_ver = is_teamserver_running(host = host, port = port)
+    if not Globals.ts_ver:
         log(f"{cli_prompt} [RED]Teamserver[RESET] is not running OR is unavailable. Please check the provided host and port for the Teamserver.", LogLevel.ERROR)
         exit(1)
 
-    log(f"[RED]Raid[WHITE]ware[RESET] Teamserver Version: [CYAN]{ts_ver}[RESET]", LogLevel.INFO)
+    log(f"[RED]Raid[WHITE]ware[RESET] Teamserver Version: [CYAN]{Globals.ts_ver}[RESET]", LogLevel.INFO)
 
-    ## Authenticate with the Teamserver:
-    endpoint = f'{prefix}/login'
+    Globals.base_url = f"http://{host}:{port}/{prefix}"
+
     resp = requests.post(
-        url = f"http://{host}:{port}/{endpoint}",
+        url = f"{Globals.base_url}/login",
         json = {
             "username"      : username,
             "password"      : password,
@@ -76,7 +85,7 @@ def init(
     )
     try:
         if resp.status_code == 403 or resp.status_code >= 500:
-            log(f"{cli_prompt} - An error occurred while trying to make request to {http://{host}:{port}/{endpoint}}. Please make sure you have the endpoint right.")
+            log(f"{cli_prompt} - An error occurred while trying to make request to {Globals.base_url}/login. Please make sure you have the endpoint right.")
         resp_json = json.loads(resp.text)
         if resp_json['status'] == 'success':
             log(f"Successfully Authenticated with the Teamserver.", LogLevel.INFO)
@@ -89,12 +98,9 @@ def init(
         log(f"{cli_prompt} - An Error Occurred: [RED]{E.__repr__()}[RESET]", LogLevel.ERROR)
         exit(1)
 
-    global logged_in_as
-    logged_in_as = username
+    Globals.logged_in_as = username
+    Globals.access_token = resp.json()['access_token']
+    Globals.refresh_token = resp.json()['refresh_token']
 
-    # Store the jwt from the response:
-
-
-    ## Start the CLI:
     main()
     

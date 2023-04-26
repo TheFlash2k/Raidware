@@ -3,6 +3,8 @@ import ctypes
 from .logger import log
 
 def terminate_thread(thread):
+    if thread == None:
+        return
     try:
         if not thread.isAlive():
             return
@@ -32,7 +34,7 @@ def is_admin():
     return os.name == 'nt' and ctypes.windll.shell32.IsUserAnAdmin() != 0 or os.getuid() == 0
 
 ''' This method will generate a random string with length specified by the _len parameter '''
-def get_random_string(_len = 25):
+def get_random_string(_len = 6):
     import string
     import random
     includes = string.ascii_letters + string.digits
