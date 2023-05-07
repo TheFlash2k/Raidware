@@ -50,10 +50,11 @@ def main():
 
 def is_teamserver_running(
     host : str,
-    port : int
+    port : int,
+    https : bool = True
 ):
     try:
-        r = requests.get(f"http://{host}:{port}/{prefix}/version")
+        r = requests.get(f"http{'s' if https else ''}://{host}:{port}/{prefix}/version")
         return r.text
     except:
         return False
@@ -63,17 +64,18 @@ def init(
     port : int,
     username : str,
     password : str,
-    team_password : str
+    team_password : str,
+    https : bool = True
 ):
     log(f"Checking if the Teamserver is running...")
-    Globals.ts_ver = is_teamserver_running(host = host, port = port)
+    Globals.ts_ver = is_teamserver_running(host=host, port=port, https=https)
     if not Globals.ts_ver:
         log(f"{cli_prompt} [RED]Teamserver[RESET] is not running OR is unavailable. Please check the provided host and port for the Teamserver.", LogLevel.ERROR)
         exit(1)
 
     log(f"[RED]Raid[WHITE]ware[RESET] Teamserver Version: [CYAN]{Globals.ts_ver}[RESET]", LogLevel.INFO)
 
-    Globals.base_url = f"http://{host}:{port}/{prefix}"
+    Globals.base_url = f"http{'s' if https else ''}://{host}:{port}/{prefix}"
 
     resp = requests.post(
         url = f"{Globals.base_url}/login",

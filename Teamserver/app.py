@@ -15,6 +15,7 @@ from .db import __init__ as db_init
 from utils.logger import *
 from utils.utils import *
 from utils.crypto import SHA512
+from OpenSSL import SSL
 
 ''' Setting up base '''
 __log__ = logging.getLogger('werkzeug')
@@ -22,7 +23,6 @@ __log__.setLevel(logging.ERROR)
 app = Flask(__name__)
 CORS(app)
 
-bp = Blueprint('Raidware-Teamserver', __name__)
 
 app.config['JWT_TOKEN_LOCATION'] = ['headers', 'cookies', 'json']
 app.config['JWT_BLACKLIST_TOKEN_CHECKS'] = ['access', 'refresh']
@@ -31,6 +31,8 @@ app.config['JWT_ACCESS_TOKEN_EXPIRES'] = 86400
 app.config['PROPAGATE_EXCEPTIONS'] = True
 app.config['CORS_HEADERS'] = 'Content-Type'
 app.config['SECRET_KEY'] = get_config_variable('Raidware_Configuration.SECRET_KEY')
+
+bp = Blueprint('Raidware-Teamserver', __name__)
 
 HTTP_METHODS = ['GET', 'HEAD', 'POST', 'PUT', 'DELETE', 'CONNECT', 'OPTIONS', 'TRACE', 'PATCH']
 
@@ -56,7 +58,6 @@ def version():
     return f"v{version.split()[0]}"
 
 @bp.route(f'/login', methods=['POST'])
-@jwt_required(optional=True)
 def auth():
     if user_logged_in():
         return {
@@ -111,8 +112,6 @@ def auth():
 
     ip = request.remote_addr
     if user['password'] != SHA512(data.get('password')):
-        # Get the IP address of the user
-        # Log the invalid login attempt
         log_auth(f'User {data.get("username")} tried to login with invalid credentials from {ip}')
         return {
             'status': 'error',
@@ -780,7 +779,8 @@ def init(
     host : str,
     port : int,
     debug : bool,
-    team_pass : str = None
+    team_pass : str = None,
+    https : bool = False,
 ):
 
     import shutil
@@ -799,5 +799,9 @@ def init(
     from utils.utils import used_ports
     used_ports[port] = "Teamserver"
 
+    context = ('Teamserver/certs/teamserver.crt', 'Teamserver/certs/teamserver.key')
     app.register_blueprint(bp, url_prefix=f'/{prefix}')
-    app.run(host=host, port=port, debug=debug)
+    if https:
+        app.run(host=host, port=port, debug=debug, ssl_context=context)
+    else:
+        app.run(host=host, port=port, debug=debug)
