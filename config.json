@@ -19,40 +19,32 @@
                 "begin-delimiter" : "|RAIDWARE-SoM|",
                 "end-delimiter" :  "|RAIDWARE-EoM|"
             },
-            "types" : ["Non-Staged", "Staged"], 
+            "types" : ["Non-Staged"], 
             "details" : {
                 "Non-Staged" : {
                     "path" : "Teamserver/listeners/staged/tcp.py",
-                    "arch" : ["x86", "x64"]
-                },
-
-                "Staged" : {
-                    "path" : "Teamserver/listeners/staged/tcp.py",
-                    "payload_size" : null,
                     "arch" : ["x86", "x64"]
                 }
             }
         },
         {
-            "protocol" : "udp",
-            "description" : "UDP Listener",
+            "protocol" : "http",
+            "description" : "HTTP Listener",
             "config" : {
                 "host" : "0.0.0.0",
-                "port" : 9001,
-                "ssl" : false,
+                "port" : 9002,
                 "begin-delimiter" : "|RAIDWARE-SoM|",
                 "end-delimiter" :  "|RAIDWARE-EoM|"
             },
-            "types" : ["Non-Staged", "Staged"],
+            "types" : ["Non-Staged"],
             "details" : {
                 "Non-Staged" : {
-                    "path" : "Teamserver/listeners/staged/udp.py"
-                },
-
-                "Staged" : {
-                    "status" : "UNIMPLEMENTED"
+                    "path" : "Teamserver/listeners/non_staged/http-rw.py",
+                    "arch" : ["x86", "x64"]
                 }
-            }
+            },
+            "encryption" : "RC4",
+            "key" : "r@1dw@r3_k3y"
         }
     ],
     "Agents" : {

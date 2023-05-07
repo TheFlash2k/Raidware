@@ -31,7 +31,9 @@ def write_json(file_name : str, content : dict):
 
 def is_admin():
     import ctypes, os
-    return os.name == 'nt' and ctypes.windll.shell32.IsUserAnAdmin() != 0 or os.getuid() == 0
+    if os.name == 'nt':
+        return ctypes.windll.shell32.IsUserAnAdmin() != 0
+    return os.getuid() == 0
 
 ''' This method will generate a random string with length specified by the _len parameter '''
 def get_random_string(_len = 6):
