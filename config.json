@@ -16,8 +16,9 @@
             "config" : {
                 "host" : "0.0.0.0",
                 "port" : 9001,
-                "begin-delimiter" : "|RAIDWARE-SoM|",
-                "end-delimiter" :  "|RAIDWARE-EoM|"
+                "begin_delimiter" : "|RAIDWARE-SoM|",
+                "end_delimiter" :  "|RAIDWARE-EoM|",
+                "encryption-key" : "%sa2(soao@s"
             },
             "types" : ["Non-Staged"], 
             "details" : {
@@ -33,8 +34,8 @@
             "config" : {
                 "host" : "0.0.0.0",
                 "port" : 9002,
-                "begin-delimiter" : "|RAIDWARE-SoM|",
-                "end-delimiter" :  "|RAIDWARE-EoM|"
+                "begin_delimiter" : "|RAIDWARE-SoM|",
+                "end_delimiter" :  "|RAIDWARE-EoM|"
             },
             "types" : ["Non-Staged"],
             "details" : {
@@ -51,8 +52,8 @@
         "Common" : {
             "PAYLOAD_ENCRYPTION" : "AES",
             "PAYLOAD_KEY" : "r@1dw@r3_k3y",
-            "begin-delimiter" : "|RAIDWARE-SoM|",
-            "end-delimiter" :  "|RAIDWARE-EoM|",
+            "begin_delimiter" : "|RAIDWARE-SoM|",
+            "end_delimiter" :  "|RAIDWARE-EoM|",
             "tcp" : {
                 "LHOST" : "127.0.0.1",
                 "LPORT" : 9001

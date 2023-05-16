@@ -79,12 +79,12 @@ def validate_listener(listener : dict, _type : type, field : str, str_type : str
             'status' : 'error',
             'msg' : f"Field '{field}' not specified"
         }
-
-    if type(ret) != _type:
-        return {
-            'status' : 'error',
-            'msg' : f"Field '{field}' must be of type {_type}"
-        }
+    log(f"Returned: {ret}")
+    # if type(ret) != _type:
+    #     return {
+    #         'status' : 'error',
+    #         'msg' : f"Field '{field}' must be of type {_type}"
+    #     }
     
     return ret
 
@@ -109,6 +109,9 @@ def validate_sub_fields(data, listener):
                 'msg' : f'Field "{item}" cannot be empty'
             }
 
+    log(f"Passed Data    : {data}")
+    log(f"Passed Listener: {listener}")
+
     ''' Verifying if the fields are of the correct type '''
     for item in list(passed_keys):
         if type(listener['config'][item]) != type(data['config'][item]):
@@ -120,11 +123,16 @@ def validate_sub_fields(data, listener):
     ''' Checking if port is in passed_keys and if the port specified is in used_ports '''
     if 'port' in passed_keys:
         port = listener['config']['port']
+        log(f"Current port: {port}")
         if type(port) != int:
-            return {
-                'status' : 'error',
-                'msg' : "Field 'port' must be an integer"
-            }
+            try:
+                listener['config']['port'] = int(listener['config']['port'])
+                log("Here?")
+            except:
+                return {
+                    'status' : 'error',
+                    'msg' : "Field 'port' must be an integer"
+                }
 
         if port <= 1 or port > 65535:
             return {
@@ -141,12 +149,12 @@ def validate_sub_fields(data, listener):
                     'msg' : "An error had occurred. Please retry."
                 }
             
+            used_ports[port] = _.LID
             return {
                 'status' : 'error',
                 'msg' : f"Port '{port}' is already in use by the Listener {_.LID}({_.name})"
             }
 
-        # used_ports[port] = _.LID
 
 def check_utils():
     import shutil

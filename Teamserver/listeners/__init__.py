@@ -54,7 +54,7 @@ class BaseListener:
 
 
 class Connection:
-    def __init__(self, UID : str, name : str = "", listener = None, _type = None, base = None, OS=None, proc = None, pid = None, pwd = None, user = None):
+    def __init__(self, UID : str, name : str = "", listener = None, _type = None, base = None, OS=None, proc = None, pid = None, pwd = None, user = None, ip = None):
         self.UID = UID
         self.name = listener.name if (name == "" or name == None) else name
         self.listener = listener
@@ -65,6 +65,7 @@ class Connection:
         self.pid = pid
         self.pwd = pwd
         self.user = user
+        self.ip = ip
 
     def __repr__(self):
         return self.__str__()
@@ -72,7 +73,7 @@ class Connection:
     def __dict__(self):
         return {
             self.UID : {
-                'Listener-Name' : f'{self.name}',
+                'Listener_Name' : f'{self.name}',
                 'Protocol' : f'{self.listener.name}',
                 'UID'  : f'{self.UID}',
                 'type' : f'{self.type}',
@@ -80,15 +81,16 @@ class Connection:
                 'proc' : f'{self.proc}',
                 'pid'  : f'{self.pid}',
                 'pwd'  : f'{self.pwd}',
-                'user' : f'{self.user}'
+                'user' : f'{self.user}',
+                'ip' : f'{self.ip}'
             }
         }
 
     def __str__(self):
-        return f"{self.UID} | {self.type} | {self.OS} | {self.proc} | {self.pid} | {self.pwd} | {self.user}"
+        return f"{self.UID} | {self.type} | {self.OS} | {self.proc} | {self.pid} | {self.pwd} | {self.user} | {self.ip}"
 
     def __list__(self):
-        return [self.UID, self.type, self.OS, self.proc, self.pid,  self.pwd , self.user]
+        return [self.UID, self.type, self.OS, self.proc, self.pid,  self.pwd , self.user, self.ip]
 
     def send(self, msg : str):
         self.listener.onSend(msg, socket=self.base)

@@ -6,3 +6,11 @@ CREATE TABLE users (
     email VARCHAR(255) NOT NULL,
     password VARCHAR(255) NOT NULL
 );
+
+CREATE TABLE loot (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name VARCHAR(255) NOT NULL,
+    type VARCHAR(255) NOT NULL,
+    value VARCHAR(255) NOT NULL,
+    description VARCHAR(255) NOT NULL
+)

@@ -3,6 +3,7 @@ import sqlite3
 from utils.crypto import SHA512
 from .models.user import User
 from werkzeug.security import safe_str_cmp
+import json
 
 prefix = 'Teamserver/db/'
 db_name = 'teamserver.sqlite3'
@@ -49,10 +50,64 @@ class UserManager():
         conn.close()
         return users
     
+    def get_pub_users(self):
+        users = self.get_all_users()
+        _users = []
+        for user in users:
+            _user = {}
+            _user['id'], _user['username'], _user['email']  = user[0:3]
+            _users.append(_user)
+        return _users
+    
     def delete_user(self, id):
         conn = get_db_connection()
         cur = conn.cursor()
         cur.execute("DELETE FROM users WHERE id = ?", (id,))
+        conn.commit()
+        conn.close()
+        return True
+
+class LootManager(object):
+    def get_loot():
+        conn = get_db_connection()
+        cur = conn.cursor()
+        cur.execute("SELECT * FROM loot")
+        loot = cur.fetchall()
+        full_loot = []
+        for i in loot:
+            full_loot.append(dict_from_row(i))
+        conn.close()
+        return full_loot
+    
+    def get_loot_by_id(id):
+        conn = get_db_connection()
+        cur = conn.cursor()
+        cur.execute("SELECT * FROM loot WHERE id = ?", (id,))
+        loot = cur.fetchone()
+        conn.close()
+        return loot
+    
+    def get_loot_by_type(_type):
+        conn = get_db_connection()
+        cur = conn.cursor()
+        cur.execute("SELECT * FROM loot WHERE type = ?", (_type,))
+        loot = cur.fetchall()
+        conn.close()
+        return loot
+    
+    def add_loot(loot):
+        print("here")
+        conn = get_db_connection()
+        cur = conn.cursor()
+        cur.execute("INSERT INTO loot (name, type, value, description) VALUES (?, ?, ?, ?)", (loot.name, loot.type, loot.value, loot.description))
+        conn.commit()
+        conn.close()
+        return True
+    
+    def delete_loot(id):
+        conn = get_db_connection()
+        cur = conn.cursor()
+        cur.execute("DELETE FROM loot WHERE id = ?", (id,))
         conn.commit()
         conn.close()
         return True

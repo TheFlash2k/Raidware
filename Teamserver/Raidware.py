@@ -259,10 +259,13 @@ def update_listener(listener : dict):
     ''' Check if the port key exists and is a valid port '''
     if 'port' in listener_config.keys():
         if type(listener_config['port']) != int:
-            return {
-                'status': 'error',
-                'msg': 'Port must be an integer'
-            }, 400
+            try:
+                listener_config['port'] = int(listener_config['port'])
+            except:
+                return {
+                    'status': 'error',
+                    'msg': 'Port must be an integer'
+                }, 400
 
         if listener_config['port'] < 1 or listener_config['port'] > 65535:
             return {
@@ -284,3 +287,7 @@ def update_listener(listener : dict):
         'to' : listener_config
     }
     
+def get_loot():
+    # Fetch the content from the loot db:
+    from .db.actions import LootManager
+    return LootManager.get_loot()
