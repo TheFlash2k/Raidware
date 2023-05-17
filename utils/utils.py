@@ -109,9 +109,6 @@ def validate_sub_fields(data, listener):
                 'msg' : f'Field "{item}" cannot be empty'
             }
 
-    log(f"Passed Data    : {data}")
-    log(f"Passed Listener: {listener}")
-
     ''' Verifying if the fields are of the correct type '''
     for item in list(passed_keys):
         if type(listener['config'][item]) != type(data['config'][item]):
@@ -123,11 +120,9 @@ def validate_sub_fields(data, listener):
     ''' Checking if port is in passed_keys and if the port specified is in used_ports '''
     if 'port' in passed_keys:
         port = listener['config']['port']
-        log(f"Current port: {port}")
         if type(port) != int:
             try:
                 listener['config']['port'] = int(listener['config']['port'])
-                log("Here?")
             except:
                 return {
                     'status' : 'error',
@@ -142,18 +137,19 @@ def validate_sub_fields(data, listener):
 
         if port in used_ports.keys():
             _ = get_listener_by_port(port)
+            log(f"Listener: {_}")
             if _ == None:
                 used_ports.pop(port)
                 return {
                     'status' : 'error',
                     'msg' : "An error had occurred. Please retry."
-                }
+                }, 400
             
-            used_ports[port] = _.LID
+            # used_ports[port] = _.name
             return {
                 'status' : 'error',
                 'msg' : f"Port '{port}' is already in use by the Listener {_.LID}({_.name})"
-            }
+            }, 400
 
 
 def check_utils():
@@ -184,6 +180,12 @@ def get_config_variable(var : str):
     for i in range(len(var)):
         data = data[var[i]]
     return data
+
+def update_used_ports(port, name):
+    global used_ports
+    log(f"Before updating: {used_ports}")
+    used_ports[port] = name
+    log(f"After updating: {used_ports}")
 
 ''' Variable Constants '''
 from colorama  import Fore

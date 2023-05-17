@@ -11,7 +11,6 @@ import Teamserver.Raidware as Raidware
 from Teamserver.listeners import connections
 from .db.actions import LocalJWT, UserManager, get_user
 from .db.models.user import User
-# from .db import __init__ as db_init
 from utils.logger import *
 from utils.utils import *
 from utils.crypto import SHA512
@@ -682,7 +681,7 @@ def sessions():
 def interact():
     
     def upload(**kwargs):
-        print("Kwargs: ", kwargs)
+        log("Passed Kwargs: ", kwargs)
         return {
             'status': 'success',
             'msg': 'File Uploaded Successfully!'
@@ -711,13 +710,25 @@ def interact():
         if __check == "get" or __check == "download":
             return download(**kwargs)
 
-        session.send(f'{data["mode"]}:{data["payload"]}')
-        ret = session.recv()
+        try:
+            session.send(f'{data["mode"]}:{data["payload"]}')
+            ret = session.recv()
+        except:
+            log("Unable to send command to session", LogLevel.ERROR)
+            log("Removing session from connections", LogLevel.ERROR)
+            connections.pop(data.get('SID'))
+            return {
+                "status" : "error",
+                "msg" : "Unable to send command to session"
+            }, 400
         
         if data["payload"][:2].lower() == "cd":
             session.pwd = ret
             
         if 'Connection Lost' in ret:
+            log("Unable to send command to session", LogLevel.ERROR)
+            log("Removing session from connections", LogLevel.ERROR)
+            connections.pop(data.get('SID'))
             return {
                 'status': 'error',
                 'msg': ret

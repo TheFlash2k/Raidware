@@ -158,9 +158,15 @@ def prepare_listener(listener : dict):
     module = f"Teamserver.listeners.{listener_type}.{listener_name}"
     from importlib import import_module
     listener_module = import_module(module)
-
+    
+    log(f"Passed listener: {listener}")
     try:
-        obj = listener_module.Listener(name=name)
+        port = None
+        try:
+            port = listener_config.get('port', None)
+        except:
+            pass
+        obj = listener_module.Listener(name=name, data=listener_config)
         ''' Updating the listener with the configuration variables provided '''
         out = obj.setopts(**listener_config)
 
@@ -224,7 +230,9 @@ def update_listener(listener : dict):
         }, 400
 
     listener_config = ret
+    log("here?")
     old_config = listener.options
+    # log("Listener Options: {listener.options}")
 
     ''' Creating two dictionaries, one with the old config and one with the new config '''
     old_diff = {}

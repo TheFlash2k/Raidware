@@ -22,20 +22,35 @@ class Listener(BaseListener):
     bind = 0
 
     def __init__(self, **kwargs):
-
+        global used_ports
         # check if 'name' is in kwargs
-        self.listener_name = kwargs['name'] if 'name' in kwargs.keys() else self.name
+        self.listener_name = kwargs['name'] if 'name' in kwargs.keys() else "tcp-" + get_random_string(6)
+        log(f"Data: {kwargs['data']}")
+        self.curr_port = None
+
+        self.options = {}
+        if 'data' in kwargs.keys():
+            self.options = kwargs['data']
         log("Initializing TCP listener", LogLevel.INFO)
-        self.options = get_default_config_vars(name=self.name)
 
         ''' Checking if the port is already being used: '''
-        self.curr_port = self.options['port']
-        if self.curr_port in used_ports.keys():
-            ret_msg = f"Port {self.curr_port} is already being used by {used_ports[self.curr_port]}"
-            log(ret_msg, LogLevel.ERROR)
-            raise Exception(ret_msg)
+        log(f"Options: {self.options}")
+        try:
+            port = self.options.get('port', None)
+        except Exception as E:
+            log_error(f"Exception: {E}")
+            port = None
 
-        used_ports[self.curr_port] = self.LID
+        log(f"Passed Port: {port}")
+        log(f"Used Ports: {used_ports}")
+        if port:
+            if port not in used_ports.keys():
+                update_used_ports(port, self.name)
+                self.curr_port = port
+            else:
+                ret_msg = f"Port {self.curr_port} is already being used by {used_ports[self.curr_port]}"
+                log(ret_msg, LogLevel.ERROR)
+                raise Exception(ret_msg)
 
     def __listen__(self):
     
@@ -112,7 +127,7 @@ class Listener(BaseListener):
         }
 
     def setopts(self, **kwargs):
-        
+        global used_ports
         ''' Check if all the keys in kwargs match the keys in self.options '''
         for item in kwargs.keys():
             if item not in self.options.keys():
@@ -128,19 +143,26 @@ class Listener(BaseListener):
 
         ''' Checking if the port value is being updated: '''
         if 'port' in kwargs.keys():
-            new_port = kwargs['port']
-            if new_port in used_ports.keys():
-                if used_ports[new_port] != "":
-                    ret_msg = f"Port {new_port} is already being used by {used_ports[new_port]}"
+            _port = kwargs['port']
+            # Firstly check if the port is already being used by another listener:
+            if _port in used_ports.keys():
+                if used_ports[_port] != "" and used_ports[_port] != self.name:
+                    ret_msg = f"Port {_port} is already being used by {used_ports[_port]}"
                     log(ret_msg, LogLevel.ERROR)
                     return {
                         'status' : 'error',
                         'msg' : ret_msg
                     }
                 else:
-                    used_ports[new_port] = self.LID
-                    used_ports.pop(self.curr_port)
-                    self.curr_port = new_port
+                    if self.curr_port != _port:
+                        used_ports[_port] = self.name
+                        try:
+                            used_ports.pop(self.curr_port)
+                        except:
+                            pass
+                        self.curr_port = _port
+                    else:
+                        pass
 
         return {
             'status' : 'success',
@@ -193,7 +215,6 @@ class Listener(BaseListener):
         
         try:
             buf = buf.split(self.options['begin_delimiter'])[1].split(self.options['end_delimiter'])[0][1:]
-            print(f"Buffer is: {buf}")
         except:
             log_error(f"Unable to parse the received data ({buf}). Returning the raw data...")
             return buf
