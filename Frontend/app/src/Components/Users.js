@@ -5,13 +5,22 @@ import rd03 from './resources/rd-01.png';
 import rd04 from './resources/rd-01 inverted.png';
 import './styles/Users.css';
 import axios from "axios";
+import { showPopup, hidePopup } from "./utils/Popup";
+import './styles/Popup.css'
 
 
 export default function Users() {
 
   const [users, setUsers] = useState([]);
+  const [errorMessage, setErrorMessage] = useState('');
 
   useEffect(() => {
+    hidePopup();
+
+    if(localStorage.getItem('token') === null || localStorage.getItem('url') === null) {
+      window.location.replace("/login");
+    }
+
     const url = localStorage.getItem("url") + "/users";
 
     axios.get(url, {
@@ -20,9 +29,9 @@ export default function Users() {
       }
     }).then((response) => {
       setUsers(response.data.users);
-      console.log(response.data);
     }).catch((error) => {
-      console.log(error);
+      setErrorMessage('Error fetching users');
+      showPopup();
     });
   }, []);
     
@@ -85,6 +94,67 @@ export default function Users() {
         body.classList.toggle("dark-mode");
     }
 
+    const handleCreateUserSubmit = (e) => {
+        e.preventDefault();
+        // allow e.preventDefault() to work
+        // Event.preventDefault();
+        hidePopup();
+        const username = document.getElementById('username').value;
+        const email = document.getElementById('email').value;
+        const pword = document.getElementById('pword').value;
+        const cnfrmpword = document.getElementById('cnfrmpword').value;
+        const teampword = document.getElementById('teampword').value;
+
+        if(pword !== cnfrmpword) {
+          setErrorMessage('Passwords do not match');
+          showPopup();
+          return;
+        }
+
+        // Check if username already in list:
+        for(let i = 0; i < users.length; i++) {
+          if(users[i].username === username) {
+            setErrorMessage('Username already exists');
+            showPopup();
+            return;
+          }
+        }
+
+        const url = localStorage.getItem("url") + "/register";
+        console.log("URL: ", url);
+
+        axios.post(url, {
+          username: username,
+          email: email,
+          password: pword,
+          confirm_password: cnfrmpword,
+          team_password: teampword
+        }).then((response) => {
+          if(response.data.status === 'success') {
+            setErrorMessage('User created successfully');
+            showPopup(true);
+            setTimeout(() => {
+              window.location.reload();
+            }, 1000);
+          }
+          else {
+            setErrorMessage(response.data.msg);
+            showPopup();
+          }
+        }).catch((error) => {
+            setErrorMessage(error.data.msg);
+            showPopup();
+            return;
+        });
+    }
+
+    const handleCreateUser = () => {
+      hidePopup();
+      const createFormPage = document.getElementById('createFormPage');
+      createFormPage.classList.toggle('top-position');
+    }
+
+
     return (
        <div>
            <div className="form-page" id="createFormPage">
@@ -106,17 +176,12 @@ export default function Users() {
             </div>
             <form className="form">
               <div className="form-scroll">
-              <select name="Protocol" id="protocol">
-                <option value="HTTP">http</option>
-                <option value="TCP">tcp</option>
-                <option value="UDP">udp</option>
-              </select>
-              <input className="input-create-list" type="text" placeholder="Name" required="required" />
-              <input className="input-create-list" type="text" placeholder="Host" required="required" />
-              <input className="input-create-list" type="text" placeholder="Port" required="required" />
-              <input className="input-create-list" type="text" placeholder="Begin-Delimiter" required="required" />
-              <input className="input-create-list" type="text" placeholder="End-Delimiter" required="required" />
-              <input type="submit" value="Create User" className="sub-list" />
+              <input className="input-create-list" type="text" placeholder="Username" id='username' required="required" />
+              <input className="input-create-list" type="text" placeholder="Email" id='email' required="required" />
+              <input className="input-create-list" type="password" placeholder="Password" id='pword' required="required" />
+              <input className="input-create-list" type="password" placeholder="Confirm Password" id='cnfrmpword'  required="required" />
+              <input className="input-create-list" type="password" placeholder="Team Password" id='teampword'  required="required" />
+              <input type="submit" onClick={handleCreateUserSubmit} value="Create User" className="sub-list" />
               </div>
             </form>
           </div>
@@ -158,7 +223,7 @@ export default function Users() {
               <div className="content" id="content">
                 <div className="user">
                   <h2 className="heading" id="mySection">Users List</h2>
-                  <button className="create" id="create">Create User</button>
+                  <button className="create" onClick={handleCreateUser} id="create">Create User</button>
                 </div>
                 <div className="user-menu">
                   <div className="id user-menu-child lmlc1">
