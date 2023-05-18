@@ -801,9 +801,53 @@ def users():
         'status': 'success',
         'users': UserManager().get_pub_users()
     }
-@bp.route('/stats/sessions', methods=['GET'])
+
+import time
+last_stats = {}
+last_time = time.time()
+
+@bp.route('/stats', methods=['GET'])
+@jwt_required()
 def get_sessions():
-    pass
+    global last_time
+    global last_stats
+
+    current_time = time.time()
+    if current_time - last_time < 5:
+        return last_stats
+
+    import requests
+    data = [connections[i].__dict__() for i in connections.keys()]
+    sessions = []
+
+    for item in data:
+        for val in item.values():
+            sessions.append(val)
+
+    ips = [ i['ip'] for i in sessions ]
+    # convert to set:
+    ips = set(ips)
+    log(f"IPs: {ips}")
+    info = {}
+    base_url = "http://ip-api.com/json/"
+    
+    for ip in ips:
+        log(f"Current ip: {ip}")
+        log("Info: => ")
+        if ip != "" or ip != None:
+            r = requests.get(base_url + ip)
+            data = r.json()
+            try:
+                info[ip] = {
+                    "country" : data["country"],
+                    "latitude" : data["lat"],
+                    "longitude" : data["lon"]
+                }
+            except:
+                pass
+    last_time = time.time()
+    last_stats = info
+    return info
 
 @bp.route(f'/loot', methods=['GET', 'POST'])
 @jwt_required()

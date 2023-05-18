@@ -35,7 +35,8 @@
                 "host" : "0.0.0.0",
                 "port" : 9002,
                 "begin_delimiter" : "|RAIDWARE-SoM|",
-                "end_delimiter" :  "|RAIDWARE-EoM|"
+                "end_delimiter" :  "|RAIDWARE-EoM|",
+                "encryption-key" : "%sa2(soao@s"
             },
             "types" : ["Non-Staged"],
             "details" : {
