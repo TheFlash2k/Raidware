@@ -5,13 +5,17 @@ import rd03 from './resources/rd-01.png';
 import rd04 from './resources/rd-01 inverted.png';
 import axios from "axios";
 import './styles/Loot.css';
+import { showPopup, hidePopup } from "./utils/Popup";
+import './styles/Popup.css'
+
 
 export default function Loot() {
 
     const [loots, setLoots] = useState([]);
+    const [errorMessage, setErrorMessage] = useState('');
 
     useEffect(() => {
-
+        hidePopup();
         const url = localStorage.getItem('url') + "/loot";
 
         axios.get(url, {
@@ -27,6 +31,7 @@ export default function Loot() {
     }, []);
 
     const handleDark = () => {
+      hidePopup();
         const div1 = document.getElementById("div1");
         const div2 = document.getElementById("div2");
         const div3 = document.getElementById("div3");
@@ -63,6 +68,7 @@ export default function Loot() {
         }
     
         const handleNav = () => {
+          hidePopup();
             // const mySection = document.getElementById('mySection');
             // mySection.classList.toggle('left-position');
     
@@ -83,6 +89,12 @@ export default function Loot() {
         const handleChangeDark = () => {
             const body = document.body;
             body.classList.toggle("dark-mode");
+        }
+
+        const handleCreateLoot = () => {
+          hidePopup();
+        const createFormPage = document.getElementById('createFormPage');
+        createFormPage.classList.toggle('top-position');
         }
 
     return(
@@ -154,6 +166,13 @@ export default function Loot() {
           </div>
             </div>
             <div class="content" id="content">
+            <div class="error-popup" id="err-popup">
+                  <p>Error:&nbsp;</p>
+                  <button onClick={hidePopup}>
+                      <i class="fa-solid fa-xmark"></i>
+                  </button>
+                  <div>{errorMessage}</div>
+              </div>
               <div class="loot">
                 <h2 class="heading" id="mySection">Loot</h2>
                 <button class="create" id="create">Add Loot</button>

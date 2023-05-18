@@ -36,6 +36,7 @@ export default function Users() {
   }, []);
     
   const handleDark = () => {
+    hidePopup();
     const div1 = document.getElementById("div1");
     const div2 = document.getElementById("div2");
     const div3 = document.getElementById("div3");
@@ -72,6 +73,7 @@ export default function Users() {
     }
 
     const handleNav = () => {
+      hidePopup();
         // const mySection = document.getElementById('mySection');
         // mySection.classList.toggle('left-position');
 
@@ -90,6 +92,7 @@ export default function Users() {
     }
 
     const handleChangeDark = () => {
+      hidePopup();
         const body = document.body;
         body.classList.toggle("dark-mode");
     }
@@ -221,6 +224,13 @@ export default function Users() {
           </div>
               </div>
               <div className="content" id="content">
+              <div class="error-popup" id="err-popup">
+                    <p>Error:&nbsp;</p>
+                    <button onClick={hidePopup}>
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                    <div>{errorMessage}</div>
+                </div>
                 <div className="user">
                   <h2 className="heading" id="mySection">Users List</h2>
                   <button className="create" onClick={handleCreateUser} id="create">Create User</button>
