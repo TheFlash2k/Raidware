@@ -252,7 +252,6 @@ export default function Dashboard() {
 							<a href="/agents"><i class="fa-solid fa-users"></i> &nbsp; &nbsp; Agents</a>
 							<a href="/loot"><i class="fa-solid fa-coins"></i> &nbsp; &nbsp; Loot</a>
 							<a href="/users"><i class="fa-solid fa-user"></i> &nbsp; &nbsp; Users</a>
-							<a href="/settings"><i class="fa-solid fa-gear"></i> &nbsp; &nbsp; Settings</a>
 							<a href="/logout" className="logout"><i className="fa-solid fa-right-from-bracket"></i> &nbsp; &nbsp; Log-out</a>
           </div>
         </div>
