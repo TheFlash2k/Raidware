@@ -29,8 +29,15 @@ class Listener(BaseListener):
         self.curr_port = None
 
         self.options = {}
+        self.options = get_default_config_vars(name=self.name)
+
+
         if 'data' in kwargs.keys():
-            self.options = kwargs['data']
+            # Update the options variables with the passed data:
+            for k, v in kwargs['data'].items():
+                self.options[k] = v
+            
+            # self.options = kwargs['data']
         log("Initializing TCP listener", LogLevel.INFO)
 
         ''' Checking if the port is already being used: '''
