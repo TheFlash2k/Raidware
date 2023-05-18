@@ -50,7 +50,8 @@ def main():
                 "type" : "non-staged",
                 "config" : {
                     "host" : "0.0.0.0",
-                    "port" : 5252
+                    "port" : 5252,
+                    
                 }
             }
         }
