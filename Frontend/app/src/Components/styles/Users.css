@@ -1,0 +1,440 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  body {
+    font-family: "Poppins", sans-serif;
+    position: relative;
+  }
+  .logo-light{
+    position: absolute;
+    width: 100px;
+    height: 20px;
+    overflow: hidden;
+    top: 25px;
+    left: 50px;
+    transition: 0.5s ease-in-out;
+    z-index: 10;
+  }
+  .logo-light img{
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .logo-dark{
+    position: absolute;
+    width: 100px;
+    height: 20px;
+    overflow: hidden;
+    top: 25px;
+    left: 50px;
+    transition: 0.5s ease-in-out;
+    z-index: 10;
+  }
+  .logo-dark img{
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  /* Light Mode */
+  .users {
+    position: relative;
+    width: 100%;
+    height: 100vh;
+    transition: 0.3s ease-in-out;
+  }
+  .container {
+    display: flex;
+    height: 100%;
+  }
+  .navbar {
+    width: 50px;
+    background-color: whitesmoke;
+    color: #333;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    z-index: 999;
+    transition: width 0.3s ease-in-out;
+  }
+  .navbar-logo-light{
+    position: absolute;
+    width: 100px;
+    height: 20px;
+    overflow: hidden;
+    top: 25px;
+    left: 50px;
+    transition: 0.5s ease-in-out;
+  }
+  .navbar-logo-light img{
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .navbar-logo-dark{
+    position: absolute;
+    width: 100px;
+    height: 20px;
+    overflow: hidden;
+    top: 25px;
+    left: 50px;
+    transition: 0.5s ease-in-out;
+  }
+  .navbar-logo-dark img{
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .a-tags {
+    display: flex;
+    flex-direction: column;
+    height: 300px;
+  }
+  .navbar a {
+    color: inherit;
+    text-decoration: none;
+    margin: 20px;
+    padding-left: 0px;
+    overflow: hidden;
+    display: inline-block;
+    width: 180px;
+    height: 100vh;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    margin-left: 10px;
+    transition: 0.3s ease-in-out;
+  }
+  .navbar a:hover i {
+    color: dodgerblue;
+  }
+  .stretched {
+    width: 190px;
+  }
+  .stretch-button {
+    width: 50px;
+    height: 30px;
+    background: none;
+    border: none;
+    color: #333;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 5px 10px;
+    margin-bottom: 40px;
+    margin-top: 10px;
+    transition: 0.3s ease-in-out;
+  }
+  .arrow-icon {
+    width: 8px;
+    height: 8px;
+    border-style: solid;
+    border-width: 2px 2px 0 0;
+    transform: rotate(45deg);
+    transition: transform 0.3s;
+    margin-right: 6px;
+  }
+  .stretched .arrow-icon {
+    transform: rotate(-135deg);
+  }
+  .content {
+    position: relative;
+    display: flex;
+    height: 100vh;
+    flex-grow: 1;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    overflow: hidden;
+  }
+  .user {
+    width: 100%;
+    height: 70px;
+    background-color: #fff;
+    align-self: flex-start;
+    justify-self: start;
+    transition: 0.3s ease-in-out;
+    position: relative;
+  }
+  .heading {
+    position: absolute;
+    left: 120px;
+    top: 21px !important;
+    transition: 0.3s ease-in-out;
+  }
+  .left-position{
+    left: 10px;
+    transition: 0.3s ease-in-out;
+  }
+  .user-menu {
+    border-bottom: #333 0.1px solid;
+    width: 100%;
+    height: 50px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    padding-right: 40px;
+    transition: 0.3s ease-in-out;
+  }
+  .user-menu-child {
+    width: 150px;
+    text-align: start;
+    color: #333;
+    font-size: 13px;
+    transition: 0.3s ease-in-out;
+  }
+  .lmlc3 {
+    width: 150px;
+  }
+  .user-menu-child:hover i {
+    color: dodgerblue;
+  }
+  .user-menu-child:hover {
+    cursor: pointer;
+  }
+  .user-items {
+    align-self: flex-end;
+    justify-self: flex-end;
+    width: 100%;
+    height: 100vh;
+    background-color: #fff;
+    overflow-y: scroll;
+    overflow-x: hidden;
+    transition: 0.3s ease-in-out;
+  }
+  .user-items-scroll {
+    display: flex;
+    flex-wrap: nowrap;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    overflow: hidden;
+  }
+  .user-items::-webkit-scrollbar {
+    display: none;
+  }
+  .dummy {
+    width: 100%;
+    height: 50px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+  }
+  .dummy:hover {
+    background-color: lightcoral;
+  }
+  .dummy-child {
+    display: inline-block;
+    padding-top: 5px;
+    width: 180px;
+    height: 30px;
+    text-align: start;
+    color: #333;
+    overflow: hidden;
+    font-size: 12px;
+    transition: 0.3s ease-in-out;
+  }
+  .dummy-child:hover {
+    cursor: pointer;
+    /* width: auto;
+    min-width: 100px; */
+  }
+  .icons-dummy {
+    width: 170px;
+    display: flex;
+    flex-wrap: nowrap;
+    justify-content: start;
+    align-items: center;
+  }
+  .icons:hover {
+    cursor: default;
+    width: 100px;
+  }
+  .disable-container {
+    display: inline-block;
+    z-index: 333;
+    padding-top: 7px;
+    right: 0px;
+  }
+  .disable-checkbox {
+    display: none;
+  }
+  .disable-label {
+    position: relative;
+    display: inline-block;
+    width: 25px;
+    height: 12.5px;
+    background-color: blue;
+    border-radius: 25px;
+    cursor: pointer;
+    transition: 0.3s;
+  }
+  .disable-inner {
+    position: absolute;
+    top: 1px;
+    left: 1px;
+    width: 10.5px;
+    height: 10.5px;
+    background-color: #fff;
+    border-radius: 50%;
+    transition: transform 0.3s ease-in-out;
+  }
+  .disable-switch {
+    position: absolute;
+    top: 1px;
+    left: 13.5px;
+    width: 10.5px;
+    height: 10.5px;
+    background-color: transparent;
+    border-radius: 50%;
+    transition: transform 0.3s ease-in-out, background-color 0.3s ease-in-out;
+  }
+  .disable-checkbox:checked + .disable-label .disable-inner {
+    transform: translateX(12.5px);
+  }
+  .disable-checkbox:checked + .disable-label .disable-switch {
+    transform: translateX(0);
+  }
+  .disable-checkbox:checked + .disable-label {
+    transition: 0.3s;
+    background-color: dodgerblue;
+  }
+  .dummy-icon {
+    display: inline-block;
+    position: relative;
+    height: 25px;
+    width: 25px;
+    border-radius: 25px;
+    background-color: lightgrey;
+    cursor: pointer;
+    margin-left: 20px;
+    padding-top: 0;
+  }
+  .fa-pen-to-square{
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: #776e6e;
+  }
+  .edit-dummy:hover .fa-pen-to-square {
+    color: black;
+  }
+  /* Dark Mode */
+  .dark-mode .stretch-button{
+    background-color: #333;
+    color: whitesmoke;
+    transition: 0.3s ease-in-out;
+  }
+  .dark-mode .navbar {
+    background-color: #333;
+    color: whitesmoke;
+    transition: 0.3s ease-in-out;
+  }
+  .dark-mode .navbar a{
+    color: inherit;
+    transition: 0.3s ease-in-out;
+  }
+  .dark-mode .user {
+    background-color: #23242a;
+    color: #fff;
+    transition: 0.3s ease-in-out;
+  }
+  .dark-mode .user-menu{
+    background-color: #23242a;
+    transition: 0.3s ease-in-out;
+  }
+  .dark-mode .user-menu-child{
+    color: #fff;
+    transition: 0.3s ease-in-out;
+  }
+  .dark-mode .user-items{
+    background-color: #23242a;
+    transition: 0.3s ease-in-out;
+  }
+  .dark-mode .dummy-child{
+    color: #fff;
+    transition: 0.3s ease-in-out;
+  }
+  /* Theme Mode */
+  .visible {
+    display: block;
+    transition: 0.3s ease-in-out;
+  }
+  .hidden {
+    display: none;
+    transition: 0.3s ease-in-out;
+  }
+  .show{
+    display: block;
+    transition: 0.3s ease-in-out;
+  }
+  .hide{
+    display: none;
+    transition: 0.3s ease-in-out;
+  }
+  /* Toggle */
+  .toggle-container {
+    display: inline-block;
+    position: absolute;
+    z-index: 333;
+    top: 27px;
+    right: 200px;
+  }
+  .toggle-checkbox {
+    display: none;
+  }
+  .toggle-label {
+    position: relative;
+    display: inline-block;
+    width: 50px;
+    height: 25px;
+    background-color: #ccc;
+    border-radius: 25px;
+    cursor: pointer;
+  }
+  .toggle-inner {
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 21px;
+    height: 21px;
+    background-color: #fff;
+    border-radius: 50%;
+    transition: transform 0.3s ease-in-out;
+  }
+  .toggle-switch {
+    position: absolute;
+    top: 2px;
+    left: 27px;
+    width: 21px;
+    height: 21px;
+    background-color: transparent;
+    border-radius: 50%;
+    transition: transform 0.3s ease-in-out, background-color 0.3s ease-in-out;
+  }
+  .toggle-checkbox:checked + .toggle-label .toggle-inner {
+    transform: translateX(25px);
+  }
+  .toggle-checkbox:checked + .toggle-label .toggle-switch {
+    transform: translateX(0);
+    background-color: #000;
+  }
+  .fa-sun {
+    color: goldenrod;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+  }
+  .fa-moon {
+    color: #ccc;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+  }
+  

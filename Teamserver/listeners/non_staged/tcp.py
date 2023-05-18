@@ -77,8 +77,10 @@ class Listener(BaseListener):
                 self.sock.bind((self.options['host'], self.options['port']))
                 self.bind = 1
             except Exception as E:
-                log_error(f"Exception: {E}")
+                log_error(f"Exception: {E.__repr__()}")
+                log(f"Current options are: {self.options}", LogLevel.ERROR)
                 log_error(f"([GREEN]{self.listener_name}[RESET]) Failed to bind to the specified address and port.")
+                log(f"Self.sock: {self.sock}")
                 self.sock = None
 
         if self.sock == None:

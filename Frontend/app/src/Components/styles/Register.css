@@ -1,0 +1,219 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  body {
+    font-family: "Poppins", sans-serif;
+    position: relative;
+  }
+  /* Light */
+  .mainLogin {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100vh;
+    background-color: #fff;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    transition: 0.5s ease-in-out;
+  }
+  .login-section {
+    padding: 10px;
+    padding-left: 40px;
+    padding-right: 40px;
+    margin-top: 50px;
+    height: auto;
+    width: 600px;
+    display: flex;
+    flex-direction: column;
+    justify-content: end;
+    align-items: flex-start;
+  }
+  .input {
+    margin: 10px;
+    box-shadow: none;
+    outline: none;
+    width: 90%;
+    height: 50px;
+    border: none;
+    padding-left: 10px;
+    border-radius: 10px;
+    background-color: lightgrey;
+    color: black;
+  }
+  .button {
+    margin: 10px;
+  }
+  .check {
+    margin-top: 10px;
+    margin-left: 10px;
+    margin-bottom: 10px;
+    background-color: lightgrey;
+    cursor: pointer;
+  }
+  .logo-sec {
+    width: 200px;
+    height: 120px;
+    overflow: hidden;
+    margin-right: 50px;
+    align-self: center;
+  }
+  .logo {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .button {
+    border: none;
+    outline: none;
+    padding: 9px 25px;
+    background-color: lightgrey;
+    color: black;
+    cursor: pointer;
+    font-size: 0.9em;
+    border-radius: 4px;
+    font-weight: 600;
+  }
+  .button:active {
+    opacity: 0.8;
+  }
+  .login-section label {
+    color: black;
+    font-size: 0.9rem;
+    font-weight: 600;
+    padding-bottom: 3px;
+  }
+  /* Dark */
+  .dark-mode {
+    background-color: #333;
+    color: #fff;
+  }
+  
+  .dark-mode .mainLogin {
+    background-color: #23242a;
+  }
+  
+  .dark-mode input {
+    background-color: #333;
+    color: whitesmoke;
+  }
+  
+  .dark-mode label {
+    color: whitesmoke;
+  }
+  /* image color switch */
+  .visible {
+    display: block;
+  }
+  .hidden {
+    display: none;
+  }
+  /* Toggle button CSS */
+  .toggle-container {
+    display: inline-block;
+    position: absolute;
+    z-index: 333;
+    top: 27px;
+    right: 200px;
+  }
+  .toggle-checkbox {
+    display: none;
+  }
+  .toggle-label {
+    position: relative;
+    display: inline-block;
+    width: 50px;
+    height: 25px;
+    background-color: #ccc;
+    border-radius: 25px;
+    cursor: pointer;
+  }
+  .toggle-inner {
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 21px;
+    height: 21px;
+    background-color: #fff;
+    border-radius: 50%;
+    transition: transform 0.3s ease-in-out;
+  }
+  .toggle-switch {
+    position: absolute;
+    top: 2px;
+    left: 27px;
+    width: 21px;
+    height: 21px;
+    background-color: transparent;
+    border-radius: 50%;
+    transition: transform 0.3s ease-in-out, background-color 0.3s ease-in-out;
+  }
+  .toggle-checkbox:checked + .toggle-label .toggle-inner {
+    transform: translateX(25px);
+  }
+  .toggle-checkbox:checked + .toggle-label .toggle-switch {
+    transform: translateX(0);
+    background-color: #000;
+  }
+  .fa-sun {
+    color: goldenrod;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+  }
+  .fa-moon {
+    color: #ccc;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+  }
+  .url-sec{
+    position: relative;
+    margin: 10px;
+    box-shadow: none;
+    outline: none;
+    width: 90%;
+    height: 50px;
+    border: none;
+    padding-left: 0px;
+    border-radius: 10px;
+    background-color: transparent;
+    color: black;
+  }
+  .input-url-disabled{
+    position: absolute;
+    margin: 0;
+    box-shadow: none;
+    outline: none;
+    width: 20%;
+    height: 50px;
+    border: none;
+    padding-left: 15px;
+    border-top-left-radius: 10px;
+    border-bottom-left-radius: 10px;
+    background-color: rgb(175, 175, 175);
+    color: black;
+  }
+  .dark-mode .input-url-disabled{
+    background-color: #444;
+  }
+  .input-url{
+    position: absolute;
+    right: 0;
+    box-shadow: none;
+    outline: none;
+    width: 80%;
+    height: 50px;
+    border: none;
+    padding-left: 10px;
+    padding-right: 10px;
+    border-top-right-radius: 10px;
+    border-bottom-right-radius: 10px;
+    background-color:lightgrey;
+    color: black;
+  }

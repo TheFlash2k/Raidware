@@ -1,0 +1,29 @@
+.error-popup {
+    position: absolute;
+    height: auto;
+    background-color: hsla(0, 100%, 50%, 0.603);
+    top: 0;
+    top:5%;
+    left: 50%;
+    transform: translate(-50%);
+    z-index: 9999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: 0.5s ease-in-out;
+    font-size: 1.5em;
+    padding: 10px 10px;
+    border-radius: 10px;
+    color: rgb(0, 0, 0);
+}
+.error-popup button {
+    display: inline-block;
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    cursor: pointer;
+    border: none;
+    outline: none;
+    background-color: transparent;
+    font-size: 1.3rem;
+}

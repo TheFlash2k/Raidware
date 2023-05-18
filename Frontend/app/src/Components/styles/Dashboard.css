@@ -1,0 +1,451 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Poppins", sans-serif;
+  }
+  body {
+    position: relative;
+  }
+  .logo-light{
+    position: absolute;
+    width: 100px;
+    height: 20px;
+    overflow: hidden;
+    top: 25px;
+    left: 50px;
+    transition: 0.5s ease-in-out;
+    z-index: 10;
+  }
+  .logo-light img{
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .logo-dark{
+    position: absolute;
+    width: 100px;
+    height: 20px;
+    overflow: hidden;
+    top: 25px;
+    left: 50px;
+    transition: 0.5s ease-in-out;
+    z-index: 10;
+  }
+  .logo-dark img{
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  /* Light Mode */
+  .dashboards {
+    position: relative;
+    width: 100%;
+    height: 100vh;
+  }
+  .container {
+    display: flex;
+    height: 100%;
+  }
+  .navbar {
+    position: relative;
+    width: 50px;
+    background-color: whitesmoke;
+    color: #333;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    z-index: 999;
+    transition: width 0.3s ease-in-out;
+  }
+  .navbar-logo-light{
+    position: absolute;
+    width: 100px;
+    height: 20px;
+    overflow: hidden;
+    top: 25px;
+    left: 50px;
+    transition: 0.5s ease-in-out;
+  }
+  .navbar-logo-light img{
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .navbar-logo-dark{
+    position: absolute;
+    width: 100px;
+    height: 20px;
+    overflow: hidden;
+    top: 25px;
+    left: 50px;
+    transition: 0.5s ease-in-out;
+  }
+  .navbar-logo-dark img{
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .a-tags {
+    display: flex;
+    flex-direction: column;
+    height: 300px;
+  }
+  .navbar a {
+    color: inherit;
+    text-decoration: none;
+    margin: 20px;
+    padding-left: 0px;
+    overflow: hidden;
+    display: inline-block;
+    width: 180px;
+    height: 100vh;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    margin-left: 10px;
+  }
+  .navbar a:hover i {
+    color: dodgerblue;
+  }
+  .stretched {
+    width: 160px;
+  }
+  .stretch-button {
+    width: 50px;
+    height: 30px;
+    background: none;
+    border: none;
+    color: #333;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 5px 10px;
+    margin-bottom: 40px;
+    margin-top: 10px;
+    transition: 0.3s ease-in-out;
+  }
+  .arrow-icon {
+    width: 8px;
+    height: 8px;
+    border-style: solid;
+    border-width: 2px 2px 0 0;
+    transform: rotate(45deg);
+    transition: transform 0.3s;
+    margin-right: 6px;
+  }
+  .stretched .arrow-icon {
+    transform: rotate(-135deg);
+  }
+  .content {
+    position: relative;
+    display: flex;
+    height: 100vh;
+    flex-grow: 1;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    overflow: hidden;
+  }
+  .dash {
+    width: 100%;
+    height: 10vh;
+    background-color: #fff;
+    align-self: flex-start;
+    justify-self: start;
+    transition: 0.3s ease-in-out;
+    border-bottom: 1px black solid;
+    position: relative;
+  }
+  .heading {
+    position: absolute;
+    left: 120px;
+    top: 15px;
+    transition: 0.3s ease-in-out;
+  }
+  .left-position{
+    left: 10px;
+    transition: 0.3s ease-in-out;
+  }
+  .dashboard{
+    height: 90vh;
+    width: 100%;
+    background-color: #fff;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    transition: 0.3s ease-in-out;
+  }
+  .analatics{
+    display: flex;
+    justify-content: space-around;
+    padding: 30px 0 0 0;
+  }
+  .card{
+    height: 150px;
+    width: 300px;
+    position: relative;
+    padding: 8px;
+    border-radius: 10px;
+    display: flex;
+    align-items: flex-end;
+    flex-direction: column;
+    background: #faf9f9;
+    transition: 0.3s ease-in-out;
+  }
+  .card h4{
+    font-size: 1.5rem;
+    font-weight: 600;
+  }
+  .card hr{
+    width: 90%;
+    position: absolute;
+    bottom: 35px;
+    left: 5%;
+  }
+  .card .card-status{
+    position: absolute;
+    bottom: 5px;
+    left: 5%;
+  }
+  .card .user-status span{
+    color: green;
+  }
+  .card .icon{
+    position: absolute;
+    height: 50px;
+    width: 50px;
+    display: flex;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    top: -25px;
+    left: 10px;
+    font-size: 1.3rem;
+    border-radius: 8px;
+  }
+  .enabled-listner-icon{
+    background: lightblue;
+    box-shadow: 0 0 10px lightblue;
+  }
+  .session-icon{
+    background: lightgreen;
+    box-shadow: 0 0 10px lightgreen;
+  }
+  .total-user-icon{
+    background: lightcoral;
+    box-shadow: 0 0 10px lightcoral;
+  }
+  .map{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 55px;
+  }
+  .total-user-map{
+    border-radius: 5px;
+    overflow: visible;
+    height: 600px;
+  }
+  .pie-chart{
+    background:
+        radial-gradient(circle closest-side,#fff 0,#fff 43.68%,transparent 43.68%,transparent 84%,#fff 0),
+        conic-gradient(from 42deg,#4e79a7 0,#4e79a7 49.4%,#f28e2c 0,#f28e2c 79.3%,#e15759 0,#e15759 100%);
+    position:relative;
+    width:600px;
+    min-height:300px;
+    margin:0;
+    transition: 0.3s ease-in-out;
+  }
+  .pie-chart cite{
+    position:absolute;
+    bottom:0;
+    font-size:80%;
+    padding:1rem;
+    color:gray;
+  }
+  .pie-chart figcaption{
+    position:absolute;
+    bottom:1em;
+    right:1em;
+    font-size:smaller;
+    text-align:right;
+  }
+  .pie-chart span:after{
+    display:inline-block;
+    content:"";
+    width:.8em;
+    height:.8em;
+    margin-left:.4em;
+    height:.8em;
+    border-radius:.2em;
+    background:currentColor;
+  }
+  .window{
+    color: #4E79A7;
+  }
+  .mac{
+    color: #f28e2c;
+  }
+  .linux{
+    color: #e15759;
+  }
+  /* Dark Mode */
+  .dark-mode .stretch-button{
+    background-color: #333;
+    color: whitesmoke;
+    transition: 0.3s ease-in-out;
+  }
+  .dark-mode .navbar {
+    background-color: #333;
+    color: whitesmoke;
+    transition: 0.3s ease-in-out;
+  }
+  .dark-mode .navbar a{
+    color: inherit;
+    transition: 0.3s ease-in-out;
+  }
+  .dark-mode .dash {
+    background-color: #23242a;
+    color: #fff;
+    transition: 0.3s ease-in-out;
+    border-bottom: 1px whitesmoke solid;
+  }
+  .dark-mode .dashboard{
+    background-color: #23242a;
+    transition: 0.3s ease-in-out;
+  }
+  .dark-mode .pie-chart{
+    background:
+    radial-gradient(circle closest-side,#23242a 0,#23242a 43.68%,transparent 43.68%,transparent 84%,#23242a 0),
+    conic-gradient(from 42deg,#4e79a7 0,#4e79a7 49.4%,#f28e2c 0,#f28e2c 79.3%,#e15759 0,#e15759 100%);
+    transition: 0.3s ease-in-out;
+    
+  }
+  .dark-mode .card{
+    background-color: #2e3038;
+    transition: 0.3s ease-in-out;
+  }
+  .dark-mode .card p{
+    color: white;
+    transition: 0.3s ease-in-out;
+  }
+  .dark-mode .card h4{
+    color: white;
+    transition: 0.3s ease-in-out;
+  }
+  .dark-mode .card hr{
+    color: white;
+    transition: 0.3s ease-in-out;
+  }
+  .dark-mode .pie-chart figcaption{
+    color: white;
+  }
+  /* Theme Mode */
+  .visible {
+    display: block;
+    transition: 0.3s ease-in-out;
+  }
+  .hidden {
+    display: none;
+    transition: 0.3s ease-in-out;
+  }
+  .show{
+    display: block;
+    transition: 0.3s ease-in-out;
+  }
+  .hide{
+    display: none;
+    transition: 0.3s ease-in-out;
+  }
+  /* Toggle */
+  .toggle-container {
+    display: inline-block;
+    position: absolute;
+    z-index: 333;
+    top: 27px;
+    right: 200px;
+  }
+  .toggle-checkbox {
+    display: none;
+  }
+  .toggle-label {
+    position: relative;
+    display: inline-block;
+    width: 50px;
+    height: 25px;
+    background-color: #ccc;
+    border-radius: 25px;
+    cursor: pointer;
+  }
+  .toggle-inner {
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 21px;
+    height: 21px;
+    background-color: #fff;
+    border-radius: 50%;
+    transition: transform 0.3s ease-in-out;
+  }
+  .toggle-switch {
+    position: absolute;
+    top: 2px;
+    left: 27px;
+    width: 21px;
+    height: 21px;
+    background-color: transparent;
+    border-radius: 50%;
+    transition: transform 0.3s ease-in-out, background-color 0.3s ease-in-out;
+  }
+  .toggle-checkbox:checked + .toggle-label .toggle-inner {
+    transform: translateX(25px);
+  }
+  .toggle-checkbox:checked + .toggle-label .toggle-switch {
+    transform: translateX(0);
+    background-color: #000;
+  }
+  .fa-sun {
+    color: goldenrod;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+  }
+  .fa-moon {
+    color: #ccc;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+  }
+  
+  .popup-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 9999;
+  }
+  
+  .popup {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 5px;
+    text-align: center;
+  }
+  
+  .close-button {
+    background-color: #f00;
+    color: #fff;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 3px;
+    cursor: pointer;
+  }
+  
