@@ -8,6 +8,7 @@ import Listeners from './Components/Listeners';
 import Users from './Components/Users';
 import Loot from './Components/Loot';
 import Session from './Components/Sessions';
+import Agent from './Components/Agent';
 import { useState } from 'react';
 
 function requireAuth(nextState, replace, next) {
@@ -37,6 +38,7 @@ function App() {
         <Route path="/loot" element={<Loot onEnter={requireAuth}/>} />
         <Route path = "/sessions" element={<Session theme={theme} setTheme={setTheme} />} />
         <Route path = "/logout" Component={Logout} />
+        <Route path = "/agents" Component={Agent} />
       </Routes>
     </Router>
     
