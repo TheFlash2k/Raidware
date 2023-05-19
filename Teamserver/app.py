@@ -953,7 +953,7 @@ def remove_loot():
             }, 404
         
         ''' Removing the loot '''
-        if not LootManager.remove_loot(data.get('id')):
+        if not LootManager.delete_loot(data.get('id')):
             return {
                 'status': 'error',
                 'msg': 'Failed to remove loot'
