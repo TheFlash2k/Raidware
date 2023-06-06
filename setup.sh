@@ -7,7 +7,8 @@ fi
 
 echo -e "[+] Raidware Setup script.\n\n"
 echo "[+] Setting up required tools: "
-(apt install mingw-w64-common mingw-w64-i686-dev mingw-w64-tools mingw-w64-x86-64-dev docker.io mono-complete -y) &>/dev/null
+apt update
+apt install mingw-w64-common mingw-w64-i686-dev mingw-w64-tools mingw-w64-x86-64-dev docker.io mono-complete -y
 
 echo "[*] Checking if python3 exists"
 (python3 --version) &>/dev/null
