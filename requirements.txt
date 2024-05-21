@@ -5,7 +5,7 @@ Flask_JWT_Extended==4.4.4
 gnureadline==8.1.2
 pycryptodome==3.17
 pyOpenSSL==23.1.1
-requests==2.27.1
+requests==2.32.0
 tabulate==0.8.9
 Werkzeug==2.3.8
 cryptography>=41.0.6 # not directly required, pinned by Snyk to avoid a vulnerability
