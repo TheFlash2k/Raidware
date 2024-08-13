@@ -7,5 +7,8 @@ pycryptodome==3.17
 pyOpenSSL==23.1.1
 requests==2.27.1
 tabulate==0.8.9
-Werkzeug==2.3.8
+Werkzeug==3.0.3
 cryptography>=41.0.6 # not directly required, pinned by Snyk to avoid a vulnerability
+certifi>=2024.7.4 # not directly required, pinned by Snyk to avoid a vulnerability
+idna>=3.7 # not directly required, pinned by Snyk to avoid a vulnerability
+jinja2>=3.1.4 # not directly required, pinned by Snyk to avoid a vulnerability
